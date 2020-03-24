@@ -1,0 +1,46 @@
+#Seconda lezione su R: oggi funzioni spaziiiiiiaaali
+
+#caricare pacchetto sp
+library(sp)
+
+#richiamare dati caricati in precedenza
+data(meuse)
+
+#allegare il dataframe per poi disegnare grafici sul rapporto cadmio/piombo
+attach(meuse)
+plot(cadmium, lead, col="brown", pch=8, cex=2)
+
+#esercizio: grafico sul rapporto tra rame e zinco con come simbolo il triangolo e come colore il verde
+plot(copper, zinc, col="darkgreen", pch=17, cex=2)
+
+#cambiare le etichette
+plot(copper, zinc, col="darkgreen", pch=17, cex=2, xlab="rame", ylab="zinco") #ciò che è relazionato ad un testo va messo sotto virgolette
+
+#inserire più di un grafico all'interno della stessa finestra-> funzione IMPORTANTISSIMA!
+par(mfrow=c(1,2)) #c si usa quando c'è una serie di numeri o caratteri
+plot(cadmium, lead, col="brown", pch=8, cex=2)
+plot(copper, zinc, col="darkgreen", pch=17, cex=2)
+
+#invertire i grafici per riga e colonna 
+par(mfrow=c(2,1)) 
+plot(cadmium, lead, col="brown", pch=8, cex=2)
+plot(copper, zinc, col="darkgreen", pch=17, cex=2)
+
+#multiframe automatico 
+install.packages("GGally") #siccome lo installiamo dall'esterno ci vogliono le virgolette
+library(GGally)
+
+#grafico di correlazioni
+ggpairs(meuse[,3:6]) #la virgola significa "a partire da"
+ggpairs #mostra come è stata calcolata la funzione
+
+########### Analisi spaziale ###########
+head(meuse) #per visualizzare le coordinate, in questo caso sotto il nome di x e y
+coordinates(meuse)=~x+y
+
+#grafico con le coordinate
+plot(meuse)
+
+#grafico spaziale, per analizzare la variazione delle variabili nello spazio
+spplot(meuse,"zinc") #questo grafico mostra i valori della variabile scelta suddivisi in classi
+#in relazione alla loro posizione nello spazio
