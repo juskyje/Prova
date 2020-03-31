@@ -1,10 +1,12 @@
-#Seconda lezione su R: oggi funzioni spaziiiiiiaaali
+########### Seconda lezione su R ###########
 
 #caricare pacchetto sp
 library(sp)
 
 #richiamare dati caricati in precedenza
 data(meuse)
+
+#breve riepilogo delle operazioni effettuate in precedenza
 
 #allegare il dataframe per poi disegnare grafici sul rapporto cadmio/piombo
 attach(meuse)
@@ -44,3 +46,28 @@ plot(meuse)
 #grafico spaziale, per analizzare la variazione delle variabili nello spazio
 spplot(meuse,"zinc") #questo grafico mostra i valori della variabile scelta suddivisi in classi
 #in relazione alla loro posizione nello spazio
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
