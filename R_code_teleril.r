@@ -1,5 +1,5 @@
 ########## Nuova sessione: telerilevamento ###########
-#installa e carica pacchetti
+#installare e caricare pacchetti
 install.packages()
 library()
 
@@ -14,10 +14,10 @@ plot(p224r63_2011) #si vede un paesaggio in 7 bande, ognuna corrispondente a div
 cl <- colorRampPalette(c("black","grey","light grey"))(100) #il numero si riferisce al numero di gamme di colore
 plot(p224r63_2011, col=cl) #nero=pixel con bassa riflettanza nel colore;grigio chiaro=pixel con alta riflettanza nel colore
 
-#visualizza le diverse bande
+#visualizzare le diverse bande
 names(p224r63_2011) #B1:blue-B2:green-B3:red-B4:near infrared-B5:medium infrared-B6:thermal infrared-B7:medium infrared
 
-#visualizza la banda del blu
+#visualizzare la banda del blu
 clb <- colorRampPalette(c("dark blue","blue","light blue"))(100)  
 #siccome la funzione attach() non funziona con il pacchetto raster
 #si deve utilizzare il $ per collegare la colonna al dataset
