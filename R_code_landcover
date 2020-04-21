@@ -1,0 +1,36 @@
+############ Nuova sessione: copertura ############
+
+#scaricare pacchetto
+install.packages("RStoolbox")
+
+#caricare pacchetti
+library(raster)
+library(RStoolbox)
+
+#stabilire la cartella di lavoro
+setwd("/Users/jen/Desktop/lab") 
+
+#caricare immagine
+p224r63_2011 <- brick("p224r63_2011_masked.grd")
+
+#grafico RGB, dove le bande del landsat sono:1=b, 2=v, 3=r, 4=nir
+plotRGB(p224r63_2011, r=4, g=2, b=2, stretch="Lin") 
+
+#classificazione tramite algoritmo
+p224r63_2011c <- unsuperClass(p224r63_2011, nClasses=4)
+
+#grafico della mappa definita dall'algoritmo
+plot(p224r63_2011c$map)
+
+#cambiare i colori della mappa
+clclass <- colorRampPalette(c('blue', 'red', 'green', 'black'))(100) 
+plot(p224r63_2011c$map, col=clclass)
+
+#classificazione tramite algoritmo alternativa 
+p224r63_2011c2 <- unsuperClass(p224r63_2011, nClasses=2)
+
+#cambiare i colori della mappa alternativa
+clclass2 <- colorRampPalette(c('red', 'blue', 'black', 'green'))(100)
+plot(p224r63_2011c2$map, col=clclass2)
+#si può qui notare come in funzione del numero di classi aumenta l'incertezza automatico di classificazione
+
