@@ -80,78 +80,7 @@ carbon <- c(5,15,30,70,85,99)
 #grafico sulla relazione tra i due vettori come variabili 
 plot(foram, carbon, col="cornflowerblue", cex=2, pch=19)
 
-########### Nuova sessione con nuovi dati importati dall'esterno ###########
-#installare pacchetti
-install.packages("ggplot2")
-install.packages("spatstat")
-install.packages("rgdal")
 
-#carica pacchetti 
-library(ggplot2)
-library(spatstat)
-library(rgdal)
-
-#stabilire la cartella di lavoro
-setwd("/Users/jen/Desktop/lab")
-
-#leggere la tabella dati
-covid <- read.table("covid_agg.csv", header = TRUE)
-
-#lista file salvati nelle sessioni precedenti
-ls()
-
-#visualizzare le prime righe del dataset
-head(covid)
-
-#primo grafico del numero di infetti per paese
-attach(covid)
-plot(country, cases, las=0) #le etichette son parallele agli assi
-plot(country, cases, las=1) #le etichette sono orizzontali
-plot(country, cases, las=2) #le etichette son perpendicolari tra loro
-plot(country, cases, las=3, cex.axis=0.5) #le etichette son tutte verticali
-
-#esempi delle possibilità di ggplot2 sul dataset mpg
-data(mpg)
-head(mpg)
-
-#grafico esempio con dataset mpg
-ggplot(mpg, aes(x=displ,y=hwy)) + geom_point() #aes sono le variabili che comporanno il grafico
-ggplot(mpg, aes(x=displ,y=hwy)) + geom_line() #cambi semplicemente il tipo di geometria
-
-#applicazione ggplot al dataset covid
-ggplot(covid, aes(x=lon, y=lat, size=cases)) + geom_point()
-
-#creare il dataset per l'applicazione spatstat
-attach(covid)
-covids <- ppp(lon, lat, c(-180,180), c(-90,90))
-
-#funzione di densità
-d <- density(covids)
-
-#grafico della mappa di densità
-plot(d)
-points(covids) #mostra i paesi sopra la mappa della densità
-
-#cambiare la palette di colori del  grafico
-cl <- colorRampPalette(c('yellow', 'orange', 'red')) (100) #quest'ultima parentesi si riferisce al numero delle gradazioni di colori
-plot(d, col=cl)
- 
-#esercizio: grafico della mappa di densità dal verde al blu
-cl2 <- colorRampPalette(c('darkgreen', 'lightgreen', 'blue')) (100) 
-plot(d, col=cl2)
-
-#carica shapefile
-coastlines <- readOGR("ne_10m_coastline.shp")
-
-#aggiungere il nuovo dataset al grafico precedente
-plot(coastlines, add=T) #questa mappa rappresenta quanto densi sono i punti nel mondo e si nota
-#la d massima registrata in Febbraio è localizzata in Europa
-
-#esercizio: grafico della mappa di densità con nuova pallette e aggiunta delle coastlines
-cl3 <- colorRampPalette(c('darkcyan', 'purple', 'red')) (200) 
-plot(d, col=cl3)
-points(covids)
-plot(coastlines, add=T) 
 
 
 
