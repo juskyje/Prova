@@ -1,0 +1,140 @@
+########### Nuova sessione: point patterns analisi con nuovi dati importati dall'esterno ###########
+#installare pacchetti
+install.packages("ggplot2")
+install.packages("spatstat")
+install.packages("rgdal")
+
+#carica pacchetti 
+library(ggplot2)
+library(spatstat)
+library(rgdal)
+
+#stabilire la cartella di lavoro
+setwd("/Users/jen/Desktop/lab")
+
+#importare la tabella dati
+covid <- read.table("covid_agg.csv", header = TRUE)
+
+#lista files salvati nelle sessioni precedenti
+ls()
+
+#visualizzare le prime righe del dataset
+head(covid)
+
+#versioni del grafico del numero di infetti per paese differenti per posizione delle etichette
+attach(covid)
+plot(country, cases, las=0) #le etichette son parallele agli assi
+plot(country, cases, las=1) #le etichette sono orizzontali
+plot(country, cases, las=2) #le etichette son perpendicolari
+plot(country, cases, las=3) #le etichette son tutte verticali
+
+#grafico del numero di infetti per paese definitivo
+plot(country, cases, las=3, cex.lab=0.5, cex.axis=0.5)
+
+#esempi delle possibilità di ggplot2 sul dataset mpg
+data(mpg)
+head(mpg)
+
+#grafico esempio con il dataset mpg
+ggplot(mpg, aes(x=displ,y=hwy)) + geom_point() #aes sono le variabili che comporanno il grafico
+ggplot(mpg, aes(x=displ,y=hwy)) + geom_line() #cambio del tipo di geometria
+
+#applicazione di ggplot al dataset covid
+ggplot(covid, aes(x=lon, y=lat, size=cases)) + geom_point()
+
+#creare il dataset per l'applicazione di spatstat
+attach(covid)
+covids <- ppp(lon, lat, c(-180,180), c(-90,90))
+
+#funzione di densità
+d <- density(covids)
+
+#grafico della mappa di densità
+plot(d)
+points(covids) #mostra i paesi sopra la mappa della densità
+
+#cambiare la palette di colori del  grafico
+cl <- colorRampPalette(c('yellow', 'orange', 'red')) (100) #quest'ultima parentesi si riferisce al numero delle gradazioni di colori
+plot(d, col=cl)
+ 
+#esercizio: mappa di densità dal verde al blu
+cl2 <- colorRampPalette(c('darkgreen', 'lightgreen', 'blue')) (100) 
+plot(d, col=cl2)
+
+#carica shapefile
+coastlines <- readOGR("ne_10m_coastline.shp")
+
+#aggiungere il nuovo dataset al grafico precedente
+plot(coastlines, add=T) #questa mappa rappresenta quanto densi sono i punti nel mondo e si nota
+#la d massima registrata in Febbraio è localizzata in Europa
+
+#esercizio: mappa di densità con nuova pallette e aggiunta delle coastlines
+cl3 <- colorRampPalette(c('darkcyan', 'purple', 'red')) (200) 
+plot(d, col=cl3)
+points(covids)
+plot(coastlines, add=T) 
+
+#guardare il dataset
+head(covid)
+
+#associare i valori dei point patterns alla funzione cases
+marks(covids) <-covid$cases
+
+#interpolazione dei valori
+s <- Smooth(covids)
+
+#mappa dei casi
+plot(s)
+
+#esercizio: mappa di interpolazione del numero dei casi relativo alle coste
+cl5 <- colorRampPalette(c('cyan', 'purple', 'red')) (200) 
+plot(s, col=cl5, main="estimate of cases")
+points(covids)
+coastlines <- readOGR("ne_10m_coastline.shp")
+plot(coastlines, add=T)
+#densità più alta in Europa ma una stima dei casi più alta in Asia in quel periodo
+
+#mappa finale di tutti i diversi grafici finora visualizzati
+par(mfrow=c(2,1))
+#mappa di densità dei punti 
+cl5 <- colorRampPalette(c('cyan', 'purple', 'red')) (200) 
+plot(d, col=cl5, main="density")
+points(covids)
+coastlines <- readOGR("ne_10m_coastline.shp")
+plot(coastlines, add=T)
+#mappa di interpolazione del numero di casi
+cl5 <- colorRampPalette(c('cyan', 'purple', 'red')) (200) 
+plot(s, col=cl5, main="estimate of cases")
+points(covids)
+coastlines <- readOGR("ne_10m_coastline.shp")
+plot(coastlines, add=T)
+#chiudi la sequenza grafica 
+dev.off()
+
+#caricare il nuovo dataset
+load("Tesi.RData")
+
+#visualizzare il dataset 
+head(Tesi)
+attach(Tesi)
+
+#visualizzare le statistiche per individuare i valori minimi e massimi
+summary(Tesi) 
+#x varia da 12.42 a 12.46
+#y varia da 43.91 a 43.94
+
+#creare il dataset per l'applicazione spatstat
+Tesippp <- ppp(Longitude, Latitude, c(12.41, 12.47), c(43.9,43.95))
+#ossia point pattern: x,y,c(xmin, xmax), c(ymin, ymax), e ricorda di arrontare per eccesso i margini
+
+#funzione di densità per individuare quanto son densi i punti nello spazioe
+dT <- density(Tesippp)
+
+#grafico di densità
+plot(dT)
+points(Tesippp)
+
+
+
+
+
