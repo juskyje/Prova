@@ -134,6 +134,38 @@ dT <- density(Tesippp)
 plot(dT)
 points(Tesippp)
 
+# Esercizio: identifica i dati precedentemente creati
+ls()
+#dT = funzione di densità; Tesi = dataset ; Tesippp = point pattern 
+
+#associare ad ogni punto spaziale il valore della variabile da interpolare, in questo caso la ricchezza specifica
+marks(Tesippp) <- Tesi$Species_richness
+
+#interpolazione
+interpol <- Smooth(Tesippp)
+
+#grafico della mappa con interpolazione
+plot(interpol)
+points(Tesippp, col="green") #si può notare come i valori più bassi di ricchezza specifica siano nella parte a N e S-O mentre i valori più alti nella parte ad O e S-E
+
+#aggiungere il confine di San Marino
+sanmarino <- readOGR("San_Marino.shp")
+
+#aggiungere San Marino alla mappa di interpolazione
+plot(sanmarino)
+plot(interpol, add=T)
+points(Tesippp, col="green")
+plot(sanmarino, add=T)
+
+# Esercizio: grafico multiframe di densità e interpolazione 
+par(mfrow=c(2,1))
+plot(dT)
+points(Tesippp, col="green")
+plot(interpol)
+points(Tesippp, col="green")
+dev.off()
+
+
 
 
 
