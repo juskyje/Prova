@@ -1,0 +1,85 @@
+########### Analisi multitemporale di variazione della copertura del suolo ###########
+#impostare la directory
+setwd("/Users/jen/Desktop/lab")
+
+#carica pacchetto
+library(sp)
+library(raster)
+library(RStoolbox)
+library(ggplot2)
+
+#caricare i dati
+defor1 <- brick("defor1_.jpg.png")
+defor2 <- brick("defor2_.jpg.png")
+
+defor1
+#nomi: defor1_.1, defor1_.2, defor1_.3
+#defor1_.1 = NIR, defor1_.2 = rosso, defor1_.3 = verde
+
+#visualizza immagine 1
+plotRGB(defor1, r=1, g=2, b=3, stretch="Lin")
+
+defor2
+
+#visualizza immagine 2
+plotRGB(defor2, r=1, g=2, b=3, stretch="Lin") #parte più utilizzata dall'uomo
+
+#visualizza immagini insieme
+par(mfrow=c(2,1))
+plotRGB(defor1, r=1, g=2, b=3, stretch="Lin")
+plotRGB(defor2, r=1, g=2, b=3, stretch="Lin")
+dev.off()
+
+#classificazione non supervisionata di defor1 (ossia non conferiamo dei training set al computer cioè non gli indichiamo cosa è foresta e cosa non è foresta)
+d1c <- unsuperClass(defor1, nClasses=2)
+d1c
+
+#grafico della classficazione
+par(mfrow=c(2,1))
+plot(d1c$map)
+cl <- colorRampPalette(c('black', 'green'))(100)
+plot(d1c$map, col=cl)
+
+#classificazione non supervisionata di defor1 
+d2c <- unsuperClass(defor2, nClasses=2)
+d2c
+
+#grafico della classficazione
+par(mfrow=c(2,1))
+plot(d2c$map)
+cl <- colorRampPalette(c('black', 'green'))(100)
+plot(d2c$map, col=cl)
+dev.off()
+
+#confronto delle due mappe diverse
+par(mfrow=c(2,1))
+plot(d1c$map, col=cl)
+plot(d2c$map, col=cl)
+#si può notare come la zona deforestata si stia ingrandendo
+dev.off()
+
+#calcolare la frequenza dei pixel differenziati per classe in defor1
+freq(d1c$map) #dove classe1=aree aperte e classe2=aree forestate
+
+#calcolare la proporzione dei pixel differenziati per classe in defor1
+totd1 <- 35239 + 306053 #genera il totale dei numero di pixel nella mappa
+totd1
+percent1 <- freq(d1c$map) * 100/totd1
+percent1
+
+#calcolare la frequenza dei pixel differenziati per classe in defor2
+freq(d2c$map) #dove classe1=aree aperte e classe2=aree forestate
+
+#calcolare la proporzione dei pixel differenziati per classe in defor2
+totd2 <- 164095 + 178631 #genera il totale dei numero di pixel nella mappa
+totd2
+percent2 <- freq(d2c$map) * 100/totd2
+percent2
+
+#creazione di un dataframe generale per le due mappe e le corrispettive frequenze
+cover <- c("Agriculture", "Forest")
+before <- c(10.3, 89.7)
+after <- c(47.9, 52.1)
+output <- data.frame(cover, before, after)
+View(output)
+
