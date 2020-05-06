@@ -76,7 +76,7 @@ listafinale
 #unire tutte le immagini in un'unica immagine
 EN <- stack(listafinale)
 
-#visualizzare grafici di tutte le immagini
+#visualizzare i grafici di tutte le immagini
 cldif<- colorRampPalette(c('red', 'orange', 'yellow')) (100)
 plot(EN, col=cl)
 
