@@ -1,10 +1,11 @@
 ########### Analisi multitemporale NO2 ############
-#impostare la directory
-setwd("/Users/jen/Desktop/lab")
 
 #caricare pacchetti
 library(sp)
 library(raster)
+
+#impostare la directory
+setwd("/Users/jen/Desktop/lab")
 
 #caricare le prima immagine
 EN01 <- raster("EN_0001.png") #utilizziamo solo una banda, quella riguardante l'azoto
