@@ -83,3 +83,34 @@ after <- c(47.9, 52.1)
 output <- data.frame(cover, before, after)
 View(output)
 
+########### Nuova sessione ###########
+#impostare la directory
+setwd("/Users/jen/Desktop/lab")
+
+#installa pacchetti
+install.packages("gridExtra")
+
+#carica pacchetti
+library(gridExtra)
+
+#caricare dati
+load("defor.RData")
+
+#grafico sulla % di copertura forestale prima della deforestazione
+ggplot(output, aes(x=cover, y=before, color=cover)) +
+geom_bar(stat="identity", fill="white") #fill si riferisce al colore da utilizzare per l'interno delle barre
+
+#Esercizio: grafico sulla % di copertura forestale dopo la deforestazione
+ggplot(output, aes(x=cover, y=after, color=cover)) +
+geom_bar(stat="identity", fill="white") 
+
+#unione dei grafici all'interno di un unica finestra grafica
+grafico1 <- ggplot(output, aes(x=cover, y=before, color=cover)) +
+geom_bar(stat="identity", fill="white") + ylim(0, 100)
+
+grafico2 <- ggplot(output, aes(x=cover, y=after, color=cover)) +
+geom_bar(stat="identity", fill="white") + ylim(0, 100)
+
+grid.arrange(grafico1, grafico2, nrow=1) 
+
+
