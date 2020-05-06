@@ -36,12 +36,12 @@ plot(EN01, col=cl)
 plot(EN13, col=cl)
 dev.off()
 
-#differenza tra i valori di NO2 delle due situazioni temporali
+#effettuare la differenza tra i valori di NO2 delle due situazioni temporali
 difno2 <- EN13 - EN01
 cldif<- colorRampPalette(c('blue', 'black', 'yellow')) (100)
 plot(difno2, col=cldif) #zone gialle=alta differenza mentre zone blu=bassa differenza
 
-#visualizzazione simultanea manuale di tutte le diverse immagini
+#visualizzare simultaneamente in modo manuale tutte le diverse immagini
 par(mfrow=c(4,4))
 plot(EN01, col=cl)
 plot(EN02, col=cl)
@@ -57,3 +57,28 @@ plot(EN11, col=cl)
 plot(EN12, col=cl)
 plot(EN13, col=cl)
 dev.off()
+
+############ Nuova sessione ###########
+
+#caricare pacchetti
+library(sp)
+library(raster)
+
+#impostare la directory
+setwd("/Users/jen/Desktop/lab/esa_no2")
+
+#importare tutte le immagini in una volta sola le quali però devono essere immesse entro una unica cartella 
+rlist <- list.files(pattern=".png", full.names=T) #creare lista delle immagini
+rlist
+listafinale <- lapply(rlist, raster) #associare la lista alla funzione raster e quindi importarla
+listafinale
+
+#unire tutte le immagini in un'unica immagine
+EN <- stack(listafinale)
+
+#visualizzare grafici di tutte le immagini
+cldif<- colorRampPalette(c('red', 'orange', 'yellow')) (100)
+plot(EN, col=cl)
+
+
+
