@@ -1,30 +1,31 @@
 ########### Analisi multitemporale di variazione della copertura del suolo ###########
-#impostare la directory
-setwd("/Users/jen/Desktop/lab")
 
-#carica pacchetto
+#caricare pacchetti
 library(sp)
 library(raster)
 library(RStoolbox)
 library(ggplot2)
 
+#impostare la directory
+setwd("/Users/jen/Desktop/lab")
+
 #caricare i dati
 defor1 <- brick("defor1_.jpg.png")
 defor2 <- brick("defor2_.jpg.png")
+
+#visualizzare immagine 1
+plotRGB(defor1, r=1, g=2, b=3, stretch="Lin")
 
 defor1
 #nomi: defor1_.1, defor1_.2, defor1_.3
 #defor1_.1 = NIR, defor1_.2 = rosso, defor1_.3 = verde
 
-#visualizza immagine 1
-plotRGB(defor1, r=1, g=2, b=3, stretch="Lin")
+#visualizzare immagine 2
+plotRGB(defor2, r=1, g=2, b=3, stretch="Lin") #parte più utilizzata dall'uomo
 
 defor2
 
-#visualizza immagine 2
-plotRGB(defor2, r=1, g=2, b=3, stretch="Lin") #parte più utilizzata dall'uomo
-
-#visualizza immagini insieme
+#visualizzare immagini insieme
 par(mfrow=c(2,1))
 plotRGB(defor1, r=1, g=2, b=3, stretch="Lin")
 plotRGB(defor2, r=1, g=2, b=3, stretch="Lin")
@@ -51,7 +52,7 @@ cl <- colorRampPalette(c('black', 'green'))(100)
 plot(d2c$map, col=cl)
 dev.off()
 
-#confronto delle due mappe diverse
+#confrontare le due mappe 
 par(mfrow=c(2,1))
 plot(d1c$map, col=cl)
 plot(d2c$map, col=cl)
@@ -76,7 +77,7 @@ totd2
 percent2 <- freq(d2c$map) * 100/totd2
 percent2
 
-#creazione di un dataframe generale per le due mappe e le corrispettive frequenze
+#creare un dataframe generale per le due mappe e le corrispettive frequenze
 cover <- c("Agriculture", "Forest")
 before <- c(10.3, 89.7)
 after <- c(47.9, 52.1)
@@ -84,14 +85,15 @@ output <- data.frame(cover, before, after)
 View(output)
 
 ########### Nuova sessione ###########
-#impostare la directory
-setwd("/Users/jen/Desktop/lab")
 
-#installa pacchetti
+#installare pacchetti
 install.packages("gridExtra")
 
-#carica pacchetti
+#caricare pacchetti
 library(gridExtra)
+
+#impostare la directory
+setwd("/Users/jen/Desktop/lab")
 
 #caricare dati
 load("defor.RData")
@@ -104,7 +106,7 @@ geom_bar(stat="identity", fill="white") #fill si riferisce al colore da utilizza
 ggplot(output, aes(x=cover, y=after, color=cover)) +
 geom_bar(stat="identity", fill="white") 
 
-#unione dei grafici all'interno di un unica finestra grafica
+#unire i grafici all'interno di un'unica finestra grafica
 grafico1 <- ggplot(output, aes(x=cover, y=before, color=cover)) +
 geom_bar(stat="identity", fill="white") + ylim(0, 100)
 
