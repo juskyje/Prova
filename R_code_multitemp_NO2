@@ -80,5 +80,32 @@ EN <- stack(listafinale)
 cldif<- colorRampPalette(c('red', 'orange', 'yellow')) (100)
 plot(EN, col=cl)
 
+########## Nuova sessione ##########
 
+#caricare pacchetti
+library(sp)
+library(raster)
+
+#impostare la directory
+setwd("/Users/jen/Desktop/lab/esa_no2")
+
+#importare tutte le immagini in una volta sola le quali però devono essere immesse entro una unica cartella 
+rlist <- list.files(pattern=".png", full.names=T) #creare lista delle immagini
+rlist
+listafinale <- lapply(rlist, raster) #associare la lista alla funzione raster e quindi importarla
+listafinale
+
+#unire tutte le immagini in un'unica immagine
+EN <- stack(listafinale)
+
+#differenza tra i valori di NO2 delle due situazioni temporali (immagine finale e immagine iniziale)
+difEN <- EN$EN_0013 - EN$EN_0001
+
+#grafici 
+cld <- colorRampPalette(c('blue', 'white', 'red')) (100)
+plot(difEN, col=cld) 
+
+#grafico boxplot
+boxplot(EN,horizontal=T, outline=F) 
+#il cambiamento più grande che ci è stato è sui massimi valori; in generale passando da il primo anno al secondo vi è una diminuzione dei valori massimi degli ossidi di azoto atmosferico
 
