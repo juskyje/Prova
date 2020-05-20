@@ -1,0 +1,50 @@
+#impostare la directory
+setwd("/Users/jen/Desktop/lab")
+
+#installare pacchetti
+install.packages("ncdf4")
+
+#caricare pacchetti
+library(raster)
+library(sp)
+library(ncdf4)
+
+#importare le immagini
+snowmay <- raster("c_gls_SCE500_202005180000_CEURO_MODIS_V1.0.1.nc")
+
+#grafico delle immagini sulla copertura in neve
+cl <- colorRampPalette(c('darkblue', 'blue', 'light blue'))(100)
+plot(snowmay, col=cl)
+
+########### Nuova importazione ###########
+#impostare la directory
+setwd("/Users/jen/Desktop/lab/snow")
+
+#importare un nuovo set di dati
+rlist <- list.files(pattern=".tif")
+list_rast=lapply(rlist, raster)
+snow.multitemp <- stack(list_rast)
+
+#grafico dei dati importati
+plot(snow.multitemp, col=cl)
+
+#confrontare situazioni temporali
+par(mfrow=c(1,2))
+plot(snow.multitemp$snow2000r, col=cl, zlim=c(0,250))
+plot(snow.multitemp$snow2020r, col=cl, zlim=c(0,250))
+dev.off()
+
+#grafico della differenza tra le due situazioni temporali
+difsnow=snow.multitemp$snow2020r - snow.multitemp$snow2000r
+cldiff <- colorRampPalette(c('blue', 'white', 'red'))(100)
+#rosso=differenza più alta; blu=differenza più bassa
+plot(difsnow, col=cldiff)
+
+#modello previsionale (scenario) per stimare il valore per il 2025
+source("prediction.r") #source serve per caricare un codice già pronto dall'esterno 
+#interrompere il comando
+^C
+
+#visualizzare la mappa della previsione (in questo caso abbiamo interrotto il comando e importiamo un nuovo raster già pronto)
+predicted.snow.2025.norm <- raster("predicted.snow.2025.norm.tif")
+plot(predicted.snow.2025.norm, col=cl)
