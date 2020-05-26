@@ -1,0 +1,73 @@
+#impostare la directory
+setwd("/Users/jen/Desktop/lab")
+
+#installare libreria
+install.packages("igraph")
+
+#caricare librerie
+library(sp)
+library(raster)
+library(igraph)
+library(ggplot2)
+
+#caricare le immagini
+d1c <- raster("d1c.tif")
+d2c <- raster("d2c.tif")
+
+#grafico di comparazione tra le due situazioni temporali
+cl <- colorRampPalette(c('black', 'green'))(100)
+par(mfrow=c(1,2))
+plot(d1c, col=cl)
+plot(d2c, col=cl) #la foresta è la classe numero due mentre la zona coltivata è la classe numero uno
+dev.off()
+
+#estrarre solamente la zona forestata per la prima immagine
+d1c.for <- reclassify(d1c, cbind(1, NA))  
+
+#grafico di comparazione tra la situazione con solo la zona forestata e quella con entrambe le zone 
+cl <- colorRampPalette(c('black', 'green'))(100)
+par(mfrow=c(1,2))
+plot(d1c.for, col=cl)
+plot(d1c, col=cl) 
+dev.off()
+
+#estrarre solamente la zona forestata per la seconda immagine
+d2c.for <- reclassify(d2c, cbind(1, NA))
+
+#grafico di comparazione tra le due situazioni temporali con solo la zona forestata  
+par(mfrow=c(1,2))
+plot(d1c)
+plot(d2c)
+dev.off()
+
+#creare patch
+d1c.for.patches <- clump(d1c.for) 
+d2c.for.patches <- clump(d2c.for) 
+
+#salvare i dati verso l'esterno (esportarli)
+writeRaster(d1c.for.patches, "d1c.for.patches.tif")
+writeRaster(d2c.for.patches, "d2c.for.patches.tif")
+
+#importare immagini con la funzione raster
+d1c.for.patches <- raster("d1c.for.patches.tif")
+d2c.for.patches <- raster("d2c.for.patches.tif")
+
+#grafico delle due immagini di patch
+clp <- colorRampPalette(c('dark blue', 'blue','green','orange','yellow','red'))(100)
+par(mfrow=c(1,2))
+plot(d1c.for.patches, col=clp)
+plot(d2c.for.patches, col=clp)
+dev.off()
+
+#definire quantitatviamente quante patch son state create
+cellStats(d1c.for.patches, max) 
+cellStats(d2c.for.patches, max)
+
+#creare dataframe definito dal numero massimo di patch in relazione alle due diverse immagini
+time <- c("Before deforestation","After deforestation")
+npatches <- c(301,1212)
+output <- data.frame(time,npatches)
+attach(output)
+
+#grafico della variazione del numero di patch nel tempo
+ggplot(output, aes(x=time, y=npatches, color="red")) + geom_bar(stat="identity", fill="white")
