@@ -929,6 +929,59 @@ ggplot(output, aes(x=time, y=npatches, color="red")) + geom_bar(stat="identity",
 
 ##########################################################
 
+### R code crop
+
+#impostare la directory
+setwd("/Users/jen/Desktop/snow") 
+
+#installare pacchetto
+install.packages("ncdf4")
+
+#importare i pacchetti
+library(raster)
+library(ncdf4) #questa libreria serve per poter caricare dati in formato come lo trovi sul sito copernicus
+
+#importare un nuovo set di dati
+rlist <- list.files(pattern="snow") #creare una lista di file
+list_rast=lapply(rlist, raster) #applicare la funzione raster sulla lista di file
+snow.multitemp <- stack(list_rast) #per accorparli tutti in un unico file, così definendo una serie multitemporale 
+
+#grafico 
+clb <- colorRampPalette(c('dark blue', 'blue', 'light blue'))(100)
+plot(snow.multitemp, col=clb)
+plot(snow.multitemp$snow2010r, col=clb) #grafico di un'unica immagine entro la serie multitemporale 
+
+#definire una certa estensione per un'immagine 
+extension <- c(6, 20, 35, 50) #dove i numeri tra parentesi si riferiscono, in ordine, a: xmin; xmax
+
+#effettuare lo zoom sull'immagine scelta secondo l'estensione specificata, in questo caso a livello della penisola italiana
+zoom(snow.multitemp$snow2010r, ext=extension)
+
+#effettuare direttamente lo zoom definendo un rettangolo nell'immagine originale
+plot(snow.multitemp$snow2010r, col=clb) #immagine originale
+zoom(snow.multitemp$snow2010r, ext=drawExtent())
+
+#funzione crop invece che zoom, pur mantenendo la stessa estensione definita in precedenza 
+snow2010r.italy <- crop(snow.multitemp$snow2010r, extension) #la funzione crop quindi non è semplicemente uno zoom dell'immagine originale ma bensì una vera e propria nuova immagine
+
+#grafico dell'immagine snow2010r così ritagliata
+plot(snow2010r.italy, col=clb)
+
+#funzione crop per l'intera seria multitemporale
+extension <- c(6, 20, 35, 50)
+snow.italy <- crop(snow.multitemp, extension)
+
+#grafico di tutte le immagini così ritagliate
+plot(snow.italy, col=clb, zlim=c(20,200)) #zlim serve per regolare le legende delle immagini in modo che riportino tutte lo stesso range di valori, da minimo a massimo
+
+boxplot(snow.italy, horizontal=T, outline=F) #dove outline si riferisce ai valori outliers, se F li esclude 
+
+
+
+
+
+
+
 https://land.copernicus.vgt.vito.be/PDF/portal/Application.html#Home
 
 
