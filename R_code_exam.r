@@ -976,6 +976,91 @@ plot(snow.italy, col=clb, zlim=c(20,200)) #zlim serve per regolare le legende de
 
 boxplot(snow.italy, horizontal=T, outline=F) #dove outline si riferisce ai valori outliers, se F li esclude 
 
+##########################################################
+
+### R species modeling distribution 
+
+#installare pacchetto
+install.packages("sdm")
+
+#caricare pacchetti
+library(sdm)
+library(raster)
+library(rgdal)
+
+#caricare il file relativo alle specie
+file <- system.file("external/species.shp", package = "sdm")
+species <- shapefile(file) #per caricare tutta la parte grafica del file
+
+#visualizzare le info del file
+species
+specie$Occurrence #visualizzo le occorrenze di specie
+
+#grafico dei punti relativi alla distribuzione di specie 
+plot(species)
+
+#grafico con i punti delle occorrenze differenziati tra presente e assente
+plot(species[species$Occurrence==1,], col=blue, pch=16) #formula condizionale che in questo caso trattiene solo le occorrenze uguali a 1 
+points(species[species$Occurrence==0,], col=red, pch=16) #la funzione points aggiunge dei punti al grafico precedente, questa volta la funzione riguarda le occorrenze pari a 0
+
+#importare i predittori, ossia delle variabili ambientali che servono a prevedere quale sarà la distribuzione delle specie nello spazio
+path <- system.file("external", package="sdm") #imposta il percorso dal quale importare i files
+lst <- list.files(path=path, pattern="asc$",  full.names=T)
+preds <- stack(lst) 
+cl <- colorRampPalette(c('blue', 'orange', 'red', 'yellow'))(100)
+#T più alta nella parte centrale .......
+
+#come la specie si distribuisce in funzione della variabile abiotica elevation
+plot(preds%elevation, col=cl)
+points(species[species$Occurrence==1,], pch=16) 
+#sembra che la specie stia bene a basse quote
+
+#come la specie si distribuisce in funzione della variabile abiotica temperature
+plot(preds%temperature, col=cl)
+points(species[species$Occurrence==1,], pch=16) 
+#sembra che alla specie piacciano le T alte 
+
+#come la specie si distribuisce in funzione della variabile abiotica precipitation
+plot(preds%precipitation, col=cl)
+points(species[species$Occurrence==1,], pch=16) 
+#sembra che ci sia una situazione intermedia per la precipitazione 
+
+#come la specie si distribuisce in funzione della variabile vegetation
+plot(preds%vegetation, col=cl)
+points(species[species$Occurrence==1,], pch=16) 
+#sembra che alla specie piaccia la situazione ombreggiata 
+
+#GLM che unisce tutte le variabili ambientali in modeo da avere la probabilità distributiva della specie 
+d <- sdmData(train=species, predictors=preds) #unisce i dati a cui si è interessati per l'analisi
+m1 <- sdm(Occurrence = elevation + precipitation + temperature + vegetation, data=d, methods="glm") #formula GLM
+p1 <- predict(m1, newdata=preds) #mappa previsionale della distribuzione di specie in funzione dei predittori ambientali 
+
+#grafico della mappa previsionale 
+plot(p1, col=cl)
+points(species[species$Occurrence==1,], pch=16)
+
+
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
