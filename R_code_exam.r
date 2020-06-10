@@ -1,38 +1,43 @@
 ### R code first
 
-install.packages("sp")
+#installo il pacchetto
+install.packages("sp") #install.packages() installa i pacchetti esterni dalle repositories
 
-library(sp) #require(sp) è un altro comando
+#carico il pacchetto
+library(sp) #library() importa i pacchetti esterni dapprima installati
 
-#importo dataset
-data("meuse")
-head(meuse) #per visualizzare le prime righe, molto potente
-names(meuse) #altra funzione interessante, stavolta per visualizzare nomi variabili
+#importo il dataset
+data("meuse") #data() carica datasets 
+#in questo caso il dataset è già incluso nel pacchetto sp 
 
-#statistiche di base
-summary(meuse)
+head(meuse) #con head() visualizzo le prime righe di un dataset
+names(meuse) #con names() visualizzo i nomi delle variabili del dataset
 
-#grafico sulle correlazioni tra tutte le variabili 
-pairs(meuse) #ci saranno zone più inquinate in base al contenuto in metalli
-pairs(~ cadmium + copper + lead , data = meuse) #tilde significa uguale mentre la virgola è un separatore degli argomenti in funzione
+#visualizzo le statistiche di base
+summary(meuse) #summary() produce le statiche di base per ogni variabile del dataset
 
-#primo esercizio, aggiungi alla funzione precedente zinco
+#grafico sulle correlazioni tra le variabili 
+pairs(meuse) #pairs() produce una matrice di scatterplots 
+
+#grafico sulle correlazioni tra le sole variabili cadmio, rame e piombo
+pairs(~ cadmium + copper + lead , data = meuse) #la tilde significa uguale mentre la virgola è usata come separatore degli argomenti 
+
+#primo esercizio: aggiungo al grafico precedente la variabile zinco
 pairs(~ cadmium + copper + lead + zinc, data = meuse)
 
-#metodo per fare un subset di undatabase selezionando solo alcune V
-pairs(meuse[,3:6]) #dove i numeri si riferiscon alle colonne e le parentesi quadre indicano il subset 
-pairs(meuse[,3:6], col="green") #dove si aggiunge una funzione relativa al colore
-pairs(meuse[,3:6], col="green", pch=19) #pch=point character per cambiare il carattere dei punti, in questo caso i punti si colorano
-pairs(meuse[,3:6], col="green", pch=19, cex=0.5) #per cambiare la dimensione dei punti
-pairs(meuse[,3:6], col="green", pch=19, cex=0.5, main="Primo pairs") #per aggiungere un titolo al grafico
+#grafico sulle correlazioni tra un subset di variabili scelte 
+pairs(meuse[,3:6]) #i numeri dopo la virgola si riferiscono alle colonne del dataset e le parentesi quadre indicano che la scelta riguarda un suo specifico subset di dati 
+pairs(meuse[,3:6], col="green") #l'argomento col aggiunge uno specifico colore al grafico
+pairs(meuse[,3:6], col="green", pch=19) #l'argomento pch permette di cambiare il carattere dei punti del grafico 
+pairs(meuse[,3:6], col="green", pch=19, cex=0.5) #l'argomento cex permette di cambiare la dimensione dei punti del grafico
+pairs(meuse[,3:6], col="green", pch=19, cex=0.5, main="Primo pairs") #l'argomento main permette di aggiungere un titolo al grafico
 
-#secondo esercizio, aggiungi al grafico elevation
+#secondo esercizio: aggiungo al grafico precedente la variabile elevazione
 pairs(meuse[,3:7], col="green", pch=19, cex=0.5, main="Primo pairs")
 
 #per utilizzare una funzione/codice esterna/o
 panel.correlations <- function(x, y, digits=1, prefix="", cex.cor)
-{
-  usr <- par("usr"); on.exit(par(usr))
+{usr <- par("usr"); on.exit(par(usr))
   par(usr = c(0, 1, 0, 1))
   r1=cor(x,y,use="pairwise.complete.obs")
   r <- abs(cor(x, y,use="pairwise.complete.obs"))
@@ -41,17 +46,17 @@ panel.correlations <- function(x, y, digits=1, prefix="", cex.cor)
   txt <- paste(prefix, txt, sep="")
   if(missing(cex.cor)) cex <- 0.9/strwidth(txt)
   text(0.5, 0.5, txt, cex = cex * r)
-} #x e y indica qualsiasi due variabili
+  } #quella così definita è una funzione relativa alle correlazioni tra x e y, i quali indicano due variabili qualsiasi
 
 panel.smoothing <- function (x, y, col = par("col"), bg = NA, pch = par("pch"),
-                             cex = 1, col.smooth = "red", span = 2/3, iter = 3, ...)
-{
+  cex = 1, col.smooth = "red", span = 2/3, iter = 3, ...) 
+  {
   points(x, y, pch = pch, col = col, bg = bg, cex = cex)
   ok <- is.finite(x) & is.finite(y)
   if (any(ok))
     lines(stats::lowess(x[ok], y[ok], f = span, iter = iter),
           col = 1, ...)
-}#lowess è uno smoother locale 
+} #quella così definita è una funzione relativa allo smoothing, dove lowess è uno smoother locale 
 
 panel.histograms <- function(x, ...)
 {
@@ -61,116 +66,100 @@ panel.histograms <- function(x, ...)
   breaks <- h$breaks; nB <- length(breaks)
   y <- h$counts; y <- y/max(y)
   rect(breaks[-nB], 0, breaks[-1], y, col="white", ...)
-}
+} #quella così definita è una funzione relativa alla produzione di istogrammi
 
-pairs(meuse[,3:6], lower.panel = panel.correlations, upper.panel = panel.smoothing, diag.panel = panel.histograms) 
-#lower.panel indica la parte inferiore del grafico per cui qui si decide di inserire la funzione relativa alle correlazioni
-#upper.panel indica la parte superiore del grafico per cui qui si decide di inserire la funzione relativa allo smoothing
-#diag.panel indica la parte diagonale per cui si inserisce la funzione relativa agli istogrammi
+pairs(meuse[,3:6], lower.panel = panel.correlations, upper.panel = panel.smoothing, diag.panel = panel.histograms) #matrice di grafici dove l'argomento lower.panel indica la parte inferiore del grafico, upper.panel indica la parte superiore del grafico, e diag.panel indica la parte diagonale 
+#in questo caso si associa la parte inferiore del grafico alla funzione sulle correlazioni, la diagonale alla funzione sugli istogrammi e la superiore alla funzione smoothing
 
-#terzo esercizio, scambia la disposizione delle funzioni tra upper e lower
+#terzo esercizio: scambio la disposizione delle funzioni tra upper e lower
 pairs(meuse[,3:6], lower.panel = panel.smoothing, upper.panel = panel.correlations, diag.panel = panel.histograms) 
- 
-#altra funzione per produrre grafici
-plot(meuse$cadmium, meuse$copper) #il dollaro serve per collegare la colonna col proprio dataset
 
-attach(meuse) #funzione per inserire il dataset all'interno di R se non già fatto e spiega a R 
-#che utilizzeremo sempre questo dataset per tutte le funzioni da qui in avanti
+#grafico generico sulle relazioni tra le variabili cadmio e rame
+plot(meuse$cadmium, meuse$copper) #il dollaro serve per collegare la colonna variabile col dataset di provenienza
 
-#quindi rifacendo il plot senza il dollaro ora vedrai che funzionerà comunque grazie ad "attach"
+#allego il dataframe
+attach(meuse) #attach() permette di spiegare a R che utilizzeremo sempre questo dataset per tutte le funzioni da qui in avanti
+
+#grafico generico sulle relazioni tra le due variabili cadmium e copper
 plot(cadmium, copper, pch=17) 
-plot(cadmium, copper, pch=17, xlab="cadmio", ylab="rame") #per cambiare i nomi relativi agli assi
-plot(cadmium, copper, pch=17, xlab="cadmio", ylab="rame", cex.lab=2) #per cambiare la grandezza dei nomi relativi agli assi
-
-########################################################
-
-### R code spatial
-
-#caricare pacchetto sp
-library(sp)
-
-#richiamare dati caricati in precedenza
-data(meuse)
-
-#breve riepilogo delle operazioni effettuate in precedenza
-
-#allegare il dataframe per poi disegnare grafici sul rapporto cadmio/piombo
-attach(meuse)
-plot(cadmium, lead, col="brown", pch=8, cex=2)
-
-#esercizio: grafico sul rapporto tra rame e zinco con come simbolo il triangolo e come colore il verde
-plot(copper, zinc, col="darkgreen", pch=17, cex=2)
-
-#cambiare le etichette
-plot(copper, zinc, col="darkgreen", pch=17, cex=2, xlab="rame", ylab="zinco") #ciò che è relazionato ad un testo va messo sotto virgolette
-
-#inserire più di un grafico all'interno della stessa finestra-> funzione IMPORTANTISSIMA!
-par(mfrow=c(1,2)) #c si usa quando c'è una serie di numeri o caratteri
-plot(cadmium, lead, col="brown", pch=8, cex=2)
-plot(copper, zinc, col="darkgreen", pch=17, cex=2)
-
-#invertire i grafici per riga e colonna 
-par(mfrow=c(2,1)) 
-plot(cadmium, lead, col="brown", pch=8, cex=2)
-plot(copper, zinc, col="darkgreen", pch=17, cex=2)
-
-#multiframe automatico 
-install.packages("GGally") #siccome lo installiamo dall'esterno ci vogliono le virgolette
-library(GGally)
-
-#grafico di correlazioni
-ggpairs(meuse[,3:6]) #la virgola significa "a partire da"
-ggpairs #mostra come è stata calcolata la funzione
-
-########### Analisi spaziale ###########
-head(meuse) #per visualizzare le coordinate, in questo caso sotto il nome di x e y
-coordinates(meuse)=~x+y
-
-#grafico con le coordinate
-plot(meuse)
-
-#grafico spaziale, per analizzare la variazione delle variabili nello spazio
-spplot(meuse,"zinc") #questo grafico mostra i valori della variabile scelta suddivisi in classi
-#in relazione alla loro posizione nello spazio
-
-########### Nuova sessione spaziale ###########
-#caricare pacchetto sp
-library(sp)
-
-#caricare dati
-data(meuse)
-
-#inserire coordinate del dataset 
-coordinates(meuse)=~x+y
-
-#grafico spaziale
-spplot(meuse,"zinc")
-
-#esercizio: ssplot con rame
-spplot(meuse,"copper")
-
-#funzione bubble
-bubble(meuse,"zinc") #stessa rappresentazione di prima ma con infografico per cui le concentrazioni 
-#dell'elemento son rappresentate in funzione della dimensione delle bolle
-
-#esercizio: bubble con rame ma con bolle rosse
-bubble(meuse,"copper",col="red")
+plot(cadmium, copper, pch=17, xlab="cadmio", ylab="rame") #gli argomenti xlab e ylab modificano i nomi relativi all'asse x e all'asse y, rispettivamente
+plot(cadmium, copper, pch=17, xlab="cadmio", ylab="rame", cex.lab=2) #l'argomento cex.lab permette di cambiare la grandezza dei nomi relativi agli assi
 
 ###########################################################
 
-### R code spatial 2 (da confrontare per suddivisione con l'altro spatial)
+### R code spatial
 
-########### Creazione oggetti ###########
-#creazione array per foraminiferi 
+#installo i pacchetti 
+install.packages("GGally")
+
+#carico i pacchetto
+library(sp)
+library(GGally)
+
+#carico il dataset
+data(meuse)
+
+#allego il dataframe
+attach(meuse)
+
+#primo esercizio: grafico sul rapporto tra rame e zinco con come simbolo il triangolo e come colore il verde
+plot(copper, zinc, col="darkgreen", pch=17, cex=2)
+
+#secondo esercizio: cambio le etichette al grafico
+plot(copper, zinc, col="darkgreen", pch=17, cex=2, xlab="rame", ylab="zinco") #ciò che è relazionato ad un testo va sempre messo tra virgolette
+
+#multiframe: confronto tra il grafico cadmio-piombo e il grafico rame-zinco
+par(mfrow=c(1,2)) #par(mfrow) permette di inserire più di un grafico all'interno della stessa finestra grafica, dove i numeri tra parentesi si riferiscono il primo al numero di righe della finestra grafica e il secondo al suo numero di colonne
+plot(cadmium, lead, col="brown", pch=8, cex=2)
+plot(copper, zinc, col="darkgreen", pch=17, cex=2)
+dev.off() #dev.off() permette di chiudere la sequenza grafica iniziata col comando par()
+
+#terzo esercizio: inverto i grafici per riga-colonna 
+par(mfrow=c(2,1)) 
+plot(cadmium, lead, col="brown", pch=8, cex=2)
+plot(copper, zinc, col="darkgreen", pch=17, cex=2)
+dev.off()
+
+#grafico ggpairs delle correlazioni tra le variabili scelte 
+ggpairs(meuse[,3:6]) #ggpairs() crea una matrice di grafici suddivisi in tre diversi set di panelli, ciascuno definito da una diversa funzione   
+ggpairs #richiamando la funzione ggpairs viene mostrato come è stata calcolata la funzione
+
+###########################################################
+
+### R code spatial 2 
+
+#carico il pacchetto
+library(sp)
+
+#carico il dataset
+data(meuse)
+
+#visualizzo le coordinate del dataset
+head(meuse) 
+#in questo caso le coordinate sono riportate come x e y
+coordinates(meuse)=~x+y #coordinates() riferisce a R quali sono le coordinate del dataset 
+
+#grafico spaziale con spplot
+spplot(meuse,"zinc") #spplot() crea un grafico spaziale che mostra i valori della variabile scelta suddivisi in classi
+#in relazione alla loro posizione nello spazio
+
+#primo esercizio: grafico spplot con rame
+spplot(meuse,"copper")
+
+#grafico spaziale con la funzione bubble
+bubble(meuse,"zinc") #bubble() crea un grafico spaziale con infografico per cui le concentrazioni dell'elemento son rappresentate in funzione della dimensione delle bolle
+
+#secondo esercizio: grafico bubble con rame e bolle di colore rosso
+bubble(meuse,"copper",col="red")
+
+#creazione di array di dati 
 foram <- c(10,20,35,55,67,80)
+carbon <- c(5,15,30,70,85,99) #Ca capture
 
-#creazione array per Ca capture
-carbon <- c(5,15,30,70,85,99)
-
-#grafico sulla relazione tra i due vettori come variabili 
+#grafico sulle relazioni tra i due vettori  
 plot(foram, carbon, col="cornflowerblue", cex=2, pch=19)
 
-#################################################
+###########################################################
 
 ### R code point pattern 
 
