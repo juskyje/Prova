@@ -35,7 +35,7 @@ pairs(meuse[,3:6], col="green", pch=19, cex=0.5, main="Primo pairs") #l'argoment
 #secondo esercizio: aggiungo al grafico precedente la variabile elevazione
 pairs(meuse[,3:7], col="green", pch=19, cex=0.5, main="Primo pairs")
 
-#per utilizzare una funzione/codice esterna/o
+#utilizzo una funzione esterna
 panel.correlations <- function(x, y, digits=1, prefix="", cex.cor)
 {usr <- par("usr"); on.exit(par(usr))
   par(usr = c(0, 1, 0, 1))
