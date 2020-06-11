@@ -6,7 +6,7 @@ install.packages("sp") #install.packages() installa i pacchetti esterni dalle re
 #carico il pacchetto
 library(sp) #library() importa i pacchetti esterni dapprima installati
 
-#importo il dataset
+##carico il dataset meuse
 data("meuse") #data() carica datasets 
 #in questo caso il dataset è già incluso nel pacchetto sp 
 
@@ -96,7 +96,7 @@ install.packages("GGally")
 library(sp)
 library(GGally)
 
-#carico il dataset
+##carico il dataset meuse
 data(meuse)
 
 #allego il dataframe
@@ -131,7 +131,7 @@ ggpairs #richiamando la funzione ggpairs viene mostrato come è stata calcolata 
 #carico il pacchetto
 library(sp)
 
-#carico il dataset
+##carico il dataset meuse
 data(meuse)
 
 #visualizzo le coordinate del dataset
@@ -163,165 +163,157 @@ plot(foram, carbon, col="cornflowerblue", cex=2, pch=19)
 
 ### R code point pattern 
 
-#installare pacchetti
+#installo i pacchetti
 install.packages("ggplot2")
 install.packages("spatstat")
 install.packages("rgdal")
 
-#carica pacchetti 
+#carico i pacchetti 
 library(ggplot2)
 library(spatstat)
 library(rgdal)
 
-#stabilire la cartella di lavoro
-setwd("/Users/jen/Desktop/lab")
+#stabilisco la cartella di lavoro
+setwd("/Users/jen/Desktop/lab") #setwd() stabilisce il percorso e quindi la posizione della directory di lavoro
 
-#importare la tabella dati
-covid <- read.table("covid_agg.csv", header = TRUE)
+##carico il dataset covid
+covid <- read.table("covid_agg.csv", header = TRUE) #read.table() permette di importare i dati come formato excel
 
-#lista files salvati nelle sessioni precedenti
-ls()
+#visualizzo i precedenti di lavoro
+ls() #ls() permette di visualizzare come lista i files e le funzioni salvati nelle sessioni di lavoro precedenti
 
-#visualizzare le prime righe del dataset
+#visualizzo il dataset
 head(covid)
 
-#versioni del grafico del numero di infetti per paese differenti per posizione delle etichette
+#allego il dataset
 attach(covid)
-plot(country, cases, las=0) #le etichette son parallele agli assi
-plot(country, cases, las=1) #le etichette sono orizzontali
-plot(country, cases, las=2) #le etichette son perpendicolari
-plot(country, cases, las=3) #le etichette son tutte verticali
+
+#grafico del numero di infetti per paese 
+plot(country, cases, las=0) #l'argomento las si riferisce all'orientamento delle etichette
+#in questo primo caso, con il valore di las pari a 0, le etichette di entrambi gli assi risultano parallele agli assi
+plot(country, cases, las=1) 
+#con las pari a 1 le etichette sono orizzontali
+plot(country, cases, las=2) 
+#con las pari a 2 le etichette son perpendicolari tra loro
+plot(country, cases, las=3) 
+#con las pari a 3 le etichette sono verticali
 
 #grafico del numero di infetti per paese definitivo
-plot(country, cases, las=3, cex.lab=0.5, cex.axis=0.5)
+plot(country, cases, las=3, cex.lab=0.5, cex.axis=1) #l'argomento cex.axis permette di cambiare la grandezza delle etichette degli assi 
 
-#esempi delle possibilità di ggplot2 sul dataset mpg
-data(mpg)
-head(mpg)
+#grafico ggplot sul dataset covid
+ggplot(covid, aes(x=lon, y=lat, size=cases)) + geom_point() #dove l'argomento aes indica le variabili da utilizzare nella costruzione del grafico e geom_() il tipo di geometria
+#in questo caso la geometria è puntuale 
 
-#grafico esempio con il dataset mpg
-ggplot(mpg, aes(x=displ,y=hwy)) + geom_point() #aes sono le variabili che comporanno il grafico
-ggplot(mpg, aes(x=displ,y=hwy)) + geom_line() #cambio del tipo di geometria
+#creo il dataset relativo ai casi di covid
+covids <- ppp(lon, lat, c(-180,180), c(-90,90)) #ppp() permette di creare un dataset puntuale, ossia a point pattern 
 
-#applicazione di ggplot al dataset covid
-ggplot(covid, aes(x=lon, y=lat, size=cases)) + geom_point()
+#creo la funzione di densità
+d <- density(covids) #density() computa la funzione di densità la quale informa sulla densità dei punti nello spazio
 
-#creare il dataset per l'applicazione di spatstat
-attach(covid)
-covids <- ppp(lon, lat, c(-180,180), c(-90,90))
-
-#funzione di densità
-d <- density(covids)
-
-#grafico della mappa di densità
+#mappa di densità con i punti
 plot(d)
-points(covids) #mostra i paesi sopra la mappa della densità
+points(covids) #points() aggiunge i punti sopra la mappa di densità
 
-#cambiare la palette di colori del  grafico
-cl <- colorRampPalette(c('yellow', 'orange', 'red')) (100) #quest'ultima parentesi si riferisce al numero delle gradazioni di colori
+#cambio i colori del  grafico
+cl <- colorRampPalette(c('yellow', 'orange', 'red')) (100) #colorRampPalette() permette di cambiare la palette di colori scelti per il grafico, dove il valore riportato dall'ultima parentesi si riferisce al numero delle gradazioni di colori
 plot(d, col=cl)
- 
-#esercizio: mappa di densità dal verde al blu
+
+#primo esercizio: mappa di densità con i punti e con palette di colori dal verde al blu
 cl2 <- colorRampPalette(c('darkgreen', 'lightgreen', 'blue')) (100) 
 plot(d, col=cl2)
 
-#carica shapefile
-coastlines <- readOGR("ne_10m_coastline.shp")
+##carico l'immagine relativa alle coste
+coastlines <- readOGR("ne_10m_coastline.shp") #readOGR() permette di caricare dati in formato shapefile
 
-#aggiungere il nuovo dataset al grafico precedente
-plot(coastlines, add=T) #questa mappa rappresenta quanto densi sono i punti nel mondo e si nota
-#la d massima registrata in Febbraio è localizzata in Europa
+#aggiungo le coste al grafico precedente
+plot(coastlines, add=T) 
+#questa mappa rappresenta quanto densi sono i punti nel mondo e si nota che
+#la densità massima registrata in Febbraio è localizzata in Europa
 
-#esercizio: mappa di densità con nuova pallette e aggiunta delle coastlines
+#secondo esercizio: mappa di densità con i punti, le coste, e con nuova palette di colori 
 cl3 <- colorRampPalette(c('darkcyan', 'purple', 'red')) (200) 
 plot(d, col=cl3)
 points(covids)
 plot(coastlines, add=T) 
 
-#guardare il dataset
+#visualizzo il dataset covid
 head(covid)
 
-#associare i valori dei point patterns alla funzione cases
-marks(covids) <-covid$cases
+#associo ai point pattern il valore della variabile cases 
+marks(covids) <-covid$cases #marks() permette di associare un dataset a point pattern ai valori della variabile da interpolare
+#in questo caso cases
 
-#interpolazione dei valori
-s <- Smooth(covids)
+#effettuo l'interpolazione dei valori
+s <- Smooth(covids) #Smooth() performa lo smoothing del dataset a point pattern
 
-#mappa dei casi
+#mappa di interpolazione
 plot(s)
 
-#esercizio: mappa di interpolazione del numero dei casi relativo alle coste
+#terzo esercizio: mappa di interpolazione con i punti, le coste, e nuova palette di colori
 cl5 <- colorRampPalette(c('cyan', 'purple', 'red')) (200) 
 plot(s, col=cl5, main="estimate of cases")
 points(covids)
-coastlines <- readOGR("ne_10m_coastline.shp")
 plot(coastlines, add=T)
-#densità più alta in Europa ma una stima dei casi più alta in Asia in quel periodo
+#la densità più alta si riscontra in Europa ma una stima dei casi più alta in Asia 
 
-#mappa finale di tutti i diversi grafici finora visualizzati
-par(mfrow=c(2,1))
-#mappa di densità dei punti 
+#grafico multiframe finale della mappa di densità e della mappa di interpolazione
+par(mfrow=c(2,1)) 
 cl5 <- colorRampPalette(c('cyan', 'purple', 'red')) (200) 
 plot(d, col=cl5, main="density")
 points(covids)
-coastlines <- readOGR("ne_10m_coastline.shp")
 plot(coastlines, add=T)
-#mappa di interpolazione del numero di casi
-cl5 <- colorRampPalette(c('cyan', 'purple', 'red')) (200) 
+ 
 plot(s, col=cl5, main="estimate of cases")
 points(covids)
-coastlines <- readOGR("ne_10m_coastline.shp")
 plot(coastlines, add=T)
-#chiudi la sequenza grafica 
 dev.off()
 
-#caricare il nuovo dataset
-load("Tesi.RData")
+##carico il dataset Tesi
+load("Tesi.RData") #load() carica un oggetto salvato come RData
 
-#visualizzare il dataset 
+#visualizzo il dataset 
 head(Tesi)
+
+#allego il dataset
 attach(Tesi)
 
-#visualizzare le statistiche per individuare i valori minimi e massimi
+#visualizzo le statistiche per individuare i valori minimi e massimi delle coordinate
 summary(Tesi) 
 #x varia da 12.42 a 12.46
 #y varia da 43.91 a 43.94
 
-#creare il dataset per l'applicazione spatstat
+#creo il dataset puntuale
 Tesippp <- ppp(Longitude, Latitude, c(12.41, 12.47), c(43.9,43.95))
-#ossia point pattern: x,y,c(xmin, xmax), c(ymin, ymax), e ricorda di arrontare per eccesso i margini
 
-#funzione di densità per individuare quanto son densi i punti nello spazioe
+#creo la funzione di densità 
 dT <- density(Tesippp)
 
-#grafico di densità
+#mappa di densità
 plot(dT)
 points(Tesippp)
 
-# Esercizio: identifica i dati precedentemente creati
-ls()
-#dT = funzione di densità; Tesi = dataset ; Tesippp = point pattern 
-
-#associare ad ogni punto spaziale il valore della variabile da interpolare, in questo caso la ricchezza specifica
+#associare ai point pattern il valore della variabile ricchezza specifica
 marks(Tesippp) <- Tesi$Species_richness
 
-#interpolazione
+#effettuo l'interpolazione dei valori
 interpol <- Smooth(Tesippp)
 
-#grafico della mappa con interpolazione
+#mappa di interpolazione
 plot(interpol)
-points(Tesippp, col="green") #si può notare come i valori più bassi di ricchezza specifica siano nella parte a N e S-O mentre i valori più alti nella parte ad O e S-E
+points(Tesippp, col="green") 
+#si può notare come i valori più bassi di ricchezza specifica si trovino nella parte a N e S-O mentre i valori più alti nella parte ad O e S-E
 
-#aggiungere il confine di San Marino
+##carico i confini di San Marino
 sanmarino <- readOGR("San_Marino.shp")
 
-#aggiungere San Marino alla mappa di interpolazione
+#aggiungo i confini di San Marino alla mappa di interpolazione
 plot(sanmarino)
 plot(interpol, add=T)
 points(Tesippp, col="green")
 plot(sanmarino, add=T)
 
-# Esercizio: grafico multiframe di densità e interpolazione 
+#quarto esercizio: grafico multiframe della mappa di densità e di interpolazione 
 par(mfrow=c(2,1))
 plot(dT)
 points(Tesippp, col="green")
@@ -329,365 +321,365 @@ plot(interpol)
 points(Tesippp, col="green")
 dev.off()
 
-#####################################################
+###########################################################
 
 ### R code teleril
 
-#installare e caricare pacchetti
-install.packages()
-library()
+#installo i pacchetti
+install.packages("raster")
+
+#carico i pacchetti
+library(raster)
+library(sp)
 
 #stabilire la cartella di lavoro
 setwd("/Users/jen/Desktop/lab")
 
-#importare immagine satellitare
-p224r63_2011 <- brick("p224r63_2011_masked.grd", header = TRUE)
+##importo l'immagine satellitare p224r63_2011
+p224r63_2011 <- brick("p224r63_2011_masked.grd", header = TRUE) #brick() permette di importare un oggetto multi-livello in formato raster 
 
-#grafico dell'immagine
-plot(p224r63_2011) #si vede un paesaggio in 7 bande, ognuna corrispondente a diversi sensori connessi a diversi colori 
-cl <- colorRampPalette(c("black","grey","light grey"))(100) #il numero si riferisce al numero di gamme di colore
-plot(p224r63_2011, col=cl) #nero=pixel con bassa riflettanza nel colore;grigio chiaro=pixel con alta riflettanza nel colore
+#visualizzo l'immagine a più bande
+plot(p224r63_2011) 
+#si vede un paesaggio a 7 bande, ognuna corrispondente a diversi sensori, riferiti a loro volta a diversi colori 
 
-#visualizzare le diverse bande
-names(p224r63_2011) #B1:blue-B2:green-B3:red-B4:near infrared-B5:medium infrared-B6:thermal infrared-B7:medium infrared
+#cambio i colori del grafico multiframe
+cl <- colorRampPalette(c("black","grey","light grey"))(100) 
+plot(p224r63_2011, col=cl) 
+#nero=pixel con bassa riflettanza nel colore associato alla banda;grigio chiaro=pixel con alta riflettanza nel colore associato alla banda
 
-#visualizzare la banda del blu
+#visualizzo i nomi associati alle diverse bande
+names(p224r63_2011) #names() riporta i nomi associati alle variabili interrogate
+#B1:blue; B2:green; B3:red; B4:near infrared; B5:medium infrared;
+#B6:thermal infrared; B7:medium infrared
+
+#visualizzo la banda del blu
 clb <- colorRampPalette(c("dark blue","blue","light blue"))(100)  
-#siccome la funzione attach() non funziona con il pacchetto raster
-#si deve utilizzare il $ per collegare la colonna al dataset
-plot(p224r63_2011$B1_sre, col=clb) #la parte colorata è relativa ai valori della riflettanza di questo colore
-#valori molto alti=molte piante
+plot(p224r63_2011$B1_sre, col=clb) #il $ viene usato per collegare la banda all'immagine poichè la funzione attach() non funziona con il pacchetto raster
+#valori di riflettanza indicano un'ampia copertura vegetativa
 
-#esercizio: grafico della banda dell'infrarosso vicino con colori che variano dal rosso al giallo
+#primo esercizio: visualizzo la banda dell'infrarosso vicino con colori che variano dal rosso al giallo
 cliv <- colorRampPalette(c("red","orange","yellow"))(100)  
 plot(p224r63_2011$B4_sre, col=cliv)
 
-#grafico multiframe
+#grafico multiframe con palette di colori specifica per ogni banda
 par(mfrow=c(2,2))
 
-#blu
 clb <- colorRampPalette(c("dark blue","blue","light blue"))(100)
 plot(p224r63_2011$B1_sre, col=clb) 
+#banda del blu
 
-#verde
 clg <- colorRampPalette(c("dark green","green","light green"))(100)
 plot(p224r63_2011$B2_sre, col=clg) 
+#banda del verde 
 
-#rosso
 clr <- colorRampPalette(c("dark red","red","pink"))(100)
 plot(p224r63_2011$B3_sre, col=clr) 
+#banda del rosso
 
-#nir
 cliv <- colorRampPalette(c("red","orange","yellow"))(100)  
 plot(p224r63_2011$B4_sre, col=cliv)
+#banda del nir
 
-#chiudere la finestra grafica e quindi la successione di immagini 
 dev.off()
 
-#vedere l'immagine come la vedrebbe l'occhio umano
-#ad ogni componente RGB si associa una banda del database
-plotRGB(p224r63_2011, r=3, g=2, b=1, stretch="Lin") #stretch dissocia le sfumature di colori
-#quindi qui si nota come la parte scura corrisponda alla parte forestata
+#visualizzo l'immagine come la vedrebbe l'occhio umano
+plotRGB(p224r63_2011, r=3, g=2, b=1, stretch="Lin") #plotRGB associa ad ogni banda del dataset una componente RGB, dove l'argomento stretch dissocia o meno le sfumature di colori
+#qui si nota come la parte scura corrisponda alla parte forestata
 
-#vedere l'immagine con false colours
+#visualizzo l'immagine RGB con falsi colori del 2011
 plotRGB(p224r63_2011, r=4, g=3, b=2, stretch="Lin")
-#tutte le zone dove c'è una pianta sono ora colorate di rosso perchè le piante riflettono 
-#molto l'infrarosso che in questo caso è montato sul rosso mentre il suolo nudo risulta celeste, 
-#circondato da zone agricole visualizzate in rosa
+#tutte le zone dove c'è una pianta sono ora colorate di rosso perchè le piante #riflettono molto l'infrarosso che in questo caso è montato sul rosso mentre il #suolo nudo risulta celeste, circondato da zone agricole visualizzate in rosa
 
-#multiframe dei due grafici
+#multiframe delle due immagini RGB del 2011
 par(mfrow=c(1,2))
 plotRGB(p224r63_2011, r=3, g=2, b=1, stretch="Lin") 
 plotRGB(p224r63_2011, r=4, g=3, b=2, stretch="Lin")
 dev.off()
 
-#esercizio: nir nella componente green
+#secondo esercizio: visualizzo l'immagine RGB del 2011 con la banda nir nella componente green
 plotRGB(p224r63_2011, r=3, g=4, b=2, stretch="Lin") 
 
-########### Nuova sessione: progressione telerilevamento #############
-
-#importare altra immagine satellitare
+##importo l'immagine satellitare p224r63_1988
 p224r63_1988 <- brick("p224r63_1988_masked.grd", header = TRUE)
 
-#grafico multiframe
+#grafico multiframe con palette di colori specifica per ogni banda
 par(mfrow=c(2,2))
 
-#blu
 clb <- colorRampPalette(c("dark blue","blue","light blue"))(100)
 plot(p224r63_1988$B1_sre, col=clb) 
+#blu
 
-#verde
 clg <- colorRampPalette(c("dark green","green","light green"))(100)
 plot(p224r63_1988$B2_sre, col=clg) 
+#verde
 
-#rosso
 clr <- colorRampPalette(c("dark red","red","pink"))(100)
 plot(p224r63_1988$B3_sre, col=clr) 
+#rosso
 
-#nir
 cliv <- colorRampPalette(c("red","orange","yellow"))(100)  
 plot(p224r63_1988$B4_sre, col=cliv)
-#chiudere sequenza grafica
+#nir
+
 dev.off()
 
-#vedere l'immagine con false colours
+#visualizzo l'immagine RGB del 1988
 plotRGB(p224r63_1988, r=3, g=2, b=1, stretch="Lin") 
 
-#esercizio: nir nella componente rossa
+#terzo esercizio: visualizzo l'immagine RGB del 1988 con la banda nir nella componente rossa
 plotRGB(p224r63_1988, r=4, g=3, b=2, stretch="Lin")
 
-#multiframe dei due grafici dello stesso tipo di cui uno riferito al 1988 e l'altro al 2011
+#multiframe delle due immagini RGB di cui una riferita al 1988 e l'altra al 2011
 par(mfrow=c(1,2))
 plotRGB(p224r63_1988, r=4, g=3, b=2, stretch="Lin") 
 plotRGB(p224r63_2011, r=4, g=3, b=2, stretch="Lin")
-#chiudere sequenza grafica
 dev.off()
 
-#indice di vegetazione per il 1988, per verificare le condizioni effettive della vegetazione
+#calcolo l'indice di vegetazione per il 1988
 dvi1988 <- p224r63_1988$B4_sre - p224r63_1988$B3_sre
-#grafico dell'indice per il 1988
+#l'indice è definito da nir-red
+
+#visualizzo l'immagine relativa all'indice di vegetazione per il 1988
 plot(dvi1988)
 
-#esercizio:indice di vegetazione per il 2011
-dvi2011 <- p224r63_2011$B4_sre - p224r63_2011$B3_sre
-#grafico dell'indice per il 2011
+#quarto esercizio: calcolo l'indice di vegetazione per il 2011
+dvi2011 <- p224r63_2011$B4_sre - p224r63_2011$B3_sre 
+
+#visualizzo l'immagine relativa all'indice di vegetazione per il 2011
 plot(dvi2011)
 
-#differenza nel tempo tra i due indici
+#calcolo la differenza tra i due indici di vegetazione riferiti alle due diverse finestre temporali
 difdvi <- dvi2011 - dvi1988
-#grafico di questa differenza
+
+#visualizzo l'immagine della differenza tra i due indici di vegetazione riferiti alle due diverse finestre temporali
 cldifdvi <- colorRampPalette(c('red','white','blue'))(100)
 plot(difdvi, col=cldifdvi)
-#le piante che stanno meglio sono nel colore blu e viceversa nel colore rosso, 
-#mentre quelle stabili nel colore bianco
+#le piante che stanno meglio sono di colore blu e viceversa di colore rosso, 
+#mentre quelle stabili di colore bianco
 
-#multiframe tra 1988, 2011 e l'indice di vegetazione
+#multiframe tra le due immagini RGB temporalmente distinte e qula differenza degli indici di vegetazione
 par(mfrow=c(3,1))
 plotRGB(p224r63_1988, r=4, g=3, b=2, stretch="Lin") 
 plotRGB(p224r63_2011, r=4, g=3, b=2, stretch="Lin")
 plot(difdvi, col=cldifdvi)
-#chiudere sequenza grafica
 dev.off()
 
-#cambiare la risoluzione dei grafici
-p224r63_2011lr <- aggregate(p224r63_2011, fact=10) #immagine con pixel di dieci volte più grande
+#cambio la risoluzione dell'immagine p224r63_2011
+p224r63_2011lr <- aggregate(p224r63_2011, fact=10) #aggregate() genera statistiche divise per le componenti del dataset
+#in questo caso la risoluzione scelta è di dieci volte più grande rispetto all'originale 
+
+#visualizzo il confronto tra la risoluzione dell'immagine originale rispetto a quella modificata 
 p224r63_2011
 p224r63_2011lr
 
-#multiframe tra immagini ad alta e a bassa risoluzione
+#multiframe tra le immagini RGB del 2011 ad alta e a bassa risoluzione
 par(mfrow=c(2,1))
 plotRGB(p224r63_2011, r=4, g=3, b=2, stretch="Lin") 
 plotRGB(p224r63_2011lr, r=4, g=3, b=2, stretch="Lin")
-#chiudere sequenza grafica
 dev.off()
 
-#cambiare la risoluzione: ancora più bassa
+#cambio la risoluzione dell'immagine p224r63_2011 diminuendola ulteriormente
 p224r63_2011lr50 <- aggregate(p224r63_2011, fact=50)
 p224r63_2011lr50
 
-#multiframe tra le immagini a diverse risoluzioni
+#multiframe tra le immagini RGB del 2011 a diverse risoluzioni
 par(mfrow=c(3,1))
 plotRGB(p224r63_2011, r=4, g=3, b=2, stretch="Lin") 
 plotRGB(p224r63_2011lr, r=4, g=3, b=2, stretch="Lin")
 plotRGB(p224r63_2011lr50, r=4, g=3, b=2, stretch="Lin")
-#chiudere sequenza grafica
 dev.off()
 
-#indice di vegetazione per il 2011 ad una risoluzione peggiore
+#calcolo l'indice di vegetazione per il 2011 ad una risoluzione peggiore rispetto all'originale
 dvi2011lr50 <- p224r63_2011lr50$B4_sre - p224r63_2011lr50$B3_sre
-#grafico dell'indice
+
+#visualizzo l'immagine relativa all'indice di vegetazione per il 2011 ad una bassa risoluzione
 plot(dvi2011lr50)
 
-#cambiare la risoluzione per il 1988
+#cambio la risoluzione dell'immagine p224r63_1988
 p224r63_1988lr50 <- aggregate(p224r63_1988, fact=50)
-#indice di vegetazione per il 1988 ad una risoluzione peggiore
+
+#calcolo l'indice di vegetazione per il 1988 ad una risoluzione peggiore rispetto all'originale
 dvi1988lr50 <- p224r63_1988lr50$B4_sre - p224r63_1988lr50$B3_sre
 
-#indice di vegetazione
+#calcolo la differenza tra i due indici di vegetazione a bassa risoluzione riferiti alle due diverse finestre temporali 
 difdvilr50 <- dvi2011lr50 - dvi1988lr50
-#grafico dell'indice
+
+#visualizzo l'immagine della differenza tra i due indici di vegetazione a bassa risoluzione riferiti alle due diverse finestre temporali
 plot(difdvilr50,col=cldifdvi)
 
-#confronto tra immagine finale a bassa e ad alta risoluzione
+#visualizzo il confronto tra l'immagine finale a bassa risoluzione e quella ad alta risoluzione
 par(mfrow=c(2,1))
 plot(difdvi, col=cldifdvi)
 plot(difdvilr50, col=cldifdvi)
 
-#############################################################
+###########################################################
 
 ### R code landcover
 
-#scaricare pacchetto
+#installo il pacchetto
 install.packages("RStoolbox")
 
-#caricare pacchetti
+#carico i pacchetti
 library(raster)
 library(RStoolbox)
 
-#stabilire la cartella di lavoro
+#stabilisco la cartella di lavoro
 setwd("/Users/jen/Desktop/lab") 
 
-#caricare immagine
+##carico l'immagine p224r63_2011
 p224r63_2011 <- brick("p224r63_2011_masked.grd")
 
-#grafico RGB, dove le bande del landsat sono:1=b, 2=v, 3=r, 4=nir
+#visualizzo l'immagine RGB del 2011 (dove le bande del landsat sono:1=blu, 2=verde, 3=rosso, 4=nir)
 plotRGB(p224r63_2011, r=4, g=2, b=2, stretch="Lin") 
 
-#classificazione tramite algoritmo
-p224r63_2011c <- unsuperClass(p224r63_2011, nClasses=4)
+#classifico l'immagine del 2011 tramite algoritmo non supervisionato
+p224r63_2011c <- unsuperClass(p224r63_2011, nClasses=4) #unsuperClass() ragguppa i dati di un raster in classi in maniera non supervinata ossia in una maniera che non conferisce i training set al computer per la distinzione
+#cioè in questo caso non indica cosa è foresta e cosa non è foresta
 
-#grafico della mappa definita dall'algoritmo
+#visualizzo l'immagine del 2011 definita dall'algoritmo 
 plot(p224r63_2011c$map)
 
-#cambiare i colori della mappa
+#cambio i colori dell'immagine del 2011 definita dall'algoritmo e la visualizzo
 clclass <- colorRampPalette(c('blue', 'red', 'green', 'black'))(100) 
 plot(p224r63_2011c$map, col=clclass)
 
-#classificazione tramite algoritmo alternativa 
+#classifico l'immagine del 2011 tramite algoritmo non supervisionato con due classi  
 p224r63_2011c2 <- unsuperClass(p224r63_2011, nClasses=2)
 
-#cambiare i colori della mappa alternativa
+#cambio i colori dell'immagine del 2011 definita dall'algoritmo con due classi e la visualizzo
 clclass2 <- colorRampPalette(c('red', 'blue', 'black', 'green'))(100)
 plot(p224r63_2011c2$map, col=clclass2)
-#si può qui notare come in funzione del numero di classi aumenta l'incertezza automatico di classificazione
+#si può qui notare come in funzione del numero di classi aumenti l'incertezza dell'algoritmo automatico di classificazione
 
-#############################################################
+###########################################################
 
 ### R code multitemp
+#installo i pacchetti
+install.packages("gridExtra")
 
-#caricare pacchetti
-library(sp)
+#carico i pacchetti
 library(raster)
 library(RStoolbox)
-library(ggplot2)
+library(gridExtra)
 
-#impostare la directory
+#imposto la directory
 setwd("/Users/jen/Desktop/lab")
 
-#caricare i dati
+##carico le immagini defor1 e defor2
 defor1 <- brick("defor1_.jpg.png")
 defor2 <- brick("defor2_.jpg.png")
 
-#visualizzare immagine 1
+#visualizzo l'immagine RGB di defor1
 plotRGB(defor1, r=1, g=2, b=3, stretch="Lin")
 
+#visualizzo le specifiche dell'immagine defor1
 defor1
-#nomi: defor1_.1, defor1_.2, defor1_.3
 #defor1_.1 = NIR, defor1_.2 = rosso, defor1_.3 = verde
 
-#visualizzare immagine 2
+#visualizzare l'immagine RGB di defor2
 plotRGB(defor2, r=1, g=2, b=3, stretch="Lin") #parte più utilizzata dall'uomo
 
+#visualizzo le specifiche dell'immagine defor2
 defor2
 
-#visualizzare immagini insieme
+#multiframe tra le immagini RGB di defor1 e defor2
 par(mfrow=c(2,1))
 plotRGB(defor1, r=1, g=2, b=3, stretch="Lin")
 plotRGB(defor2, r=1, g=2, b=3, stretch="Lin")
 dev.off()
 
-#classificazione non supervisionata di defor1 (ossia non conferiamo dei training set al computer cioè non gli indichiamo cosa è foresta e cosa non è foresta)
+#classifico l'immagine defor1 tramite algoritmo non supervisionato 
 d1c <- unsuperClass(defor1, nClasses=2)
-d1c
 
-#grafico della classficazione
+#visualizzo l'immagine defor1 definita tramite l'algoritmo non supervisionato con e senza mofifica della palette di colori
 par(mfrow=c(2,1))
 plot(d1c$map)
 cl <- colorRampPalette(c('black', 'green'))(100)
 plot(d1c$map, col=cl)
+dev.off()
 
-#classificazione non supervisionata di defor1 
+#classifico l'immagine defor2 tramite algoritmo non supervisionata  
 d2c <- unsuperClass(defor2, nClasses=2)
-d2c
 
-#grafico della classficazione
+#visualizzo l'immagine defor2 definita tramite l'algoritmo non supervisionato con e senza modifica della palette di colori
 par(mfrow=c(2,1))
 plot(d2c$map)
 cl <- colorRampPalette(c('black', 'green'))(100)
 plot(d2c$map, col=cl)
 dev.off()
 
-#confrontare le due mappe 
+#visualizzo il confronto tra l'immagine defor1 e l'immagine defor2 definite secondo l'algoritmo non supervisionato
 par(mfrow=c(2,1))
 plot(d1c$map, col=cl)
 plot(d2c$map, col=cl)
-#si può notare come la zona deforestata si stia ingrandendo
+#si può notare come la zona deforestata si stia ingrandendo nel tempo
 dev.off()
 
-#calcolare la frequenza dei pixel differenziati per classe in defor1
-freq(d1c$map) #dove classe1=aree aperte e classe2=aree forestate
+#calcolo le frequenze dei pixel differenziati per classe in defor1
+freq(d1c$map) #freq() calcola la tavola delle frequenze per un dato oggetto 
+#classe1=aree aperte e classe2=aree forestate
 
-#calcolare la proporzione dei pixel differenziati per classe in defor1
-totd1 <- 35239 + 306053 #genera il totale dei numero di pixel nella mappa
+#calcolo le proporzioni dei pixel differenziati per classe in defor1
+totd1 <- 35239 + 306053 
+#in questo modo si genera il totale dei numero di pixel nella mappa
 totd1
 percent1 <- freq(d1c$map) * 100/totd1
 percent1
 
-#calcolare la frequenza dei pixel differenziati per classe in defor2
-freq(d2c$map) #dove classe1=aree aperte e classe2=aree forestate
+#calcolo le frequenze dei pixel differenziati per classe in defor2
+freq(d2c$map) 
 
-#calcolare la proporzione dei pixel differenziati per classe in defor2
+#calcolo le proporzioni dei pixel differenziati per classe in defor2
 totd2 <- 164095 + 178631 #genera il totale dei numero di pixel nella mappa
 totd2
 percent2 <- freq(d2c$map) * 100/totd2
 percent2
 
-#creare un dataframe generale per le due mappe e le corrispettive frequenze
+#creo un dataframe generale per le due mappe e le corrispettive frequenze
 cover <- c("Agriculture", "Forest")
 before <- c(10.3, 89.7)
 after <- c(47.9, 52.1)
 output <- data.frame(cover, before, after)
-View(output)
 
-########### Nuova sessione ###########
+#visualizzo il dataframe delle mappe con frequenze associate
+View(output) #View() permette la visualizzazione dei dati matriciali sotto forma di foglio di calcolo
 
-#installare pacchetti
-install.packages("gridExtra")
-
-#caricare pacchetti
-library(gridExtra)
-
-#impostare la directory
-setwd("/Users/jen/Desktop/lab")
-
-#caricare dati
-load("defor.RData")
-
-#grafico sulla % di copertura forestale prima della deforestazione
+#grafico ggplot sulla percentuale di copertura forestale prima della deforestazione
 ggplot(output, aes(x=cover, y=before, color=cover)) +
-geom_bar(stat="identity", fill="white") #fill si riferisce al colore da utilizzare per l'interno delle barre
+geom_bar(stat="identity", fill="white") #l'argomento fill si riferisce al colore da utilizzare per il riempimento interno delle barre del grafico 
 
-#Esercizio: grafico sulla % di copertura forestale dopo la deforestazione
+#primo esercizio: grafico ggplot sulla percentuale di copertura forestale dopo la deforestazione
 ggplot(output, aes(x=cover, y=after, color=cover)) +
 geom_bar(stat="identity", fill="white") 
 
-#unire i grafici all'interno di un'unica finestra grafica
+#multiframe tra i due grafici ggplot riferiti uno alla copertura forestale prima della deforestazione e l'altro alla copertura forestale dopo la deforestazione 
+
 grafico1 <- ggplot(output, aes(x=cover, y=before, color=cover)) +
 geom_bar(stat="identity", fill="white") + ylim(0, 100)
 
 grafico2 <- ggplot(output, aes(x=cover, y=after, color=cover)) +
 geom_bar(stat="identity", fill="white") + ylim(0, 100)
 
-grid.arrange(grafico1, grafico2, nrow=1) 
+grid.arrange(grafico1, grafico2, nrow=1) #grid.arrange organizza la disposizione spaziale dei grafici all'interno della finestra grafica 
 
-#################################################
+###########################################################
 
 ### R code multitemp NO2
 
-#caricare pacchetti
-library(sp)
+#carico i pacchetti
 library(raster)
 
-#impostare la directory
+#imposto la directory
 setwd("/Users/jen/Desktop/lab")
 
-#caricare le prima immagine
-EN01 <- raster("EN_0001.png") #utilizziamo solo una banda, quella riguardante l'azoto
+##carico l'immagine EN01
+EN01 <- raster("EN_0001.png") #raster() permette di importare file in formato raster
+#utilizziamo solo una banda, quella riguardante l'azoto
 
-#visualizzare l'immagine come grafico
+#visualizzo l'immagine EN01
 plot(EN01)
 
-#caricare il resto delle immagini
+##carico singolarmente le altre immagini "EN" 
 EN02 <- raster("EN_0002.png")
 EN03 <- raster("EN_0003.png")
 EN04 <- raster("EN_0004.png")
@@ -701,21 +693,24 @@ EN11 <- raster("EN_0011.png")
 EN12 <- raster("EN_0012.png")
 EN13 <- raster("EN_0013.png")
 
-#cambiare la palette di colori per i grafici
+#cambio la palette di colori alle immagini 
 cl <- colorRampPalette(c('red', 'orange', 'yellow')) (100) 
 
-#visualizzare il grafico iniziale e finale insieme
+#multiframe tra l'immagine iniziale e l'immagine finale
 par(mfrow=c(1,2))
 plot(EN01, col=cl)
 plot(EN13, col=cl)
 dev.off()
 
-#effettuare la differenza tra i valori di NO2 delle due situazioni temporali
+#calcolo la differenza dei valori di NO2 tra l'immagine iniziale e l'immagine finale
 difno2 <- EN13 - EN01
-cldif<- colorRampPalette(c('blue', 'black', 'yellow')) (100)
-plot(difno2, col=cldif) #zone gialle=alta differenza mentre zone blu=bassa differenza
 
-#visualizzare simultaneamente in modo manuale tutte le diverse immagini
+#visualizzo la differenza dei valori di NO2 tra l'immagine iniziale e l'immagine finale
+cldif<- colorRampPalette(c('red', 'orange', 'yellow')) (100)
+plot(difno2, col=cldif) 
+#zone gialle=molta differenza; zone blu=poca differenza
+
+#multiframe di tutte le diverse immagini "EN" impostate singolarmente
 par(mfrow=c(4,4))
 plot(EN01, col=cl)
 plot(EN02, col=cl)
@@ -732,56 +727,25 @@ plot(EN12, col=cl)
 plot(EN13, col=cl)
 dev.off()
 
-############ Nuova sessione ###########
-
-#caricare pacchetti
-library(sp)
-library(raster)
-
 #impostare la directory
 setwd("/Users/jen/Desktop/lab/esa_no2")
 
-#importare tutte le immagini in una volta sola le quali però devono essere immesse entro una unica cartella 
-rlist <- list.files(pattern=".png", full.names=T) #creare lista delle immagini
-rlist
-listafinale <- lapply(rlist, raster) #associare la lista alla funzione raster e quindi importarla
-listafinale
+##carico tutte le immagini "EN" in una volta 
+rlist <- list.files(pattern=".png", full.names=T) #list.files() crea una lista di immagini
 
-#unire tutte le immagini in un'unica immagine
-EN <- stack(listafinale)
+listafinale <- lapply(rlist, raster) #lapply() applica una data funzione ad una lista di file 
+#in questo caso la funzione è raster 
 
-#visualizzare i grafici di tutte le immagini
+EN <- stack(listafinale) #stack() unisce tutti file come unico dataset
+
+#visualizzo tutte le immagini "EN" in una volta 
 cldif<- colorRampPalette(c('red', 'orange', 'yellow')) (100)
 plot(EN, col=cl)
 
-########## Nuova sessione ##########
-
-#caricare pacchetti
-library(sp)
-library(raster)
-
-#impostare la directory
-setwd("/Users/jen/Desktop/lab/esa_no2")
-
-#importare tutte le immagini in una volta sola le quali però devono essere immesse entro una unica cartella 
-rlist <- list.files(pattern=".png", full.names=T) #creare lista delle immagini
-rlist
-listafinale <- lapply(rlist, raster) #associare la lista alla funzione raster e quindi importarla
-listafinale
-
-#unire tutte le immagini in un'unica immagine
-EN <- stack(listafinale)
-
-#differenza tra i valori di NO2 delle due situazioni temporali (immagine finale e immagine iniziale)
-difEN <- EN$EN_0013 - EN$EN_0001
-
-#grafici 
-cld <- colorRampPalette(c('blue', 'white', 'red')) (100)
-plot(difEN, col=cld) 
-
-#grafico boxplot
-boxplot(EN,horizontal=T, outline=F) 
-#il cambiamento più grande che ci è stato è sui massimi valori; in generale passando da il primo anno al secondo vi è una diminuzione dei valori massimi degli ossidi di azoto atmosferico
+#boxplot di tutte le immagini "EN"
+boxplot(EN,horizontal=T, axes=T, outline=F) #boxplot() produce un grafico a scatola e #baffi che riporta i valori della mediana e dei quartili, dove l'argomento #horizontal si riferisce all'orientamento dei box e outline alla ritenzione o #eliminazione dei valori outlier 
+#in questo caso il boxplot è orientato orizzontalmente e gli outliers vengono eliminati
+#il cambiamento più grande che ci è stato è relativo ai massimi valori; in #generale passando dal primo anno al secondo vi è una diminuzione dei valori #massimi degli ossidi di azoto atmosferico
 
 ################################################################
 
