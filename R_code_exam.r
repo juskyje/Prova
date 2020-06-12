@@ -930,72 +930,61 @@ boxplot(snow.italy, horizontal=T, outline=F) #dove outline si riferisce ai valor
 #installo i pacchetti
 install.packages("sdm")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#caricare pacchetti
+#carico i pacchetti
 library(sdm)
 library(raster)
 library(rgdal)
 
-#caricare il file relativo alle specie
-file <- system.file("external/species.shp", package = "sdm")
-species <- shapefile(file) #per caricare tutta la parte grafica del file
+##carico il file relativo alle specie
+file <- system.file("external/species.shp", package = "sdm") #system.file() permette di identificare dei file presenti all'interno di pacchetti
+species <- shapefile(file) #shapefile() permette di importare dati di tipo spaziale come shapefile
 
-#visualizzare le info del file
+#visualizzo le informazioni relative alle occorrenze di specie del file
 species
-specie$Occurrence #visualizzo le occorrenze di specie
+specie$Occurrence 
 
-#grafico dei punti relativi alla distribuzione di specie 
+#grafico relativo alla distribuzione di specie 
 plot(species)
 
-#grafico con i punti delle occorrenze differenziati tra presente e assente
-plot(species[species$Occurrence==1,], col=blue, pch=16) #formula condizionale che in questo caso trattiene solo le occorrenze uguali a 1 
-points(species[species$Occurrence==0,], col=red, pch=16) #la funzione points aggiunge dei punti al grafico precedente, questa volta la funzione riguarda le occorrenze pari a 0
+#grafico puntuale differenziato per presenza e assenza di specie
+plot(species[species$Occurrence==1,], col=blue, pch=16) #formula condizionale #che in questo caso trattiene solo le occorrenze uguali a 1 
+points(species[species$Occurrence==0,], col=red, pch=16) #points() aggiunge dei punti al grafico 
+#questa volta la funzione riguarda le occorrenze pari a 0
 
-#importare i predittori, ossia delle variabili ambientali che servono a prevedere quale sarà la distribuzione delle specie nello spazio
-path <- system.file("external", package="sdm") #imposta il percorso dal quale importare i files
+##carico i predittori, ossia le variabili ambientali che servono a prevedere quale sarà la distribuzione delle specie nello spazio
+path <- system.file("external", package="sdm") 
 lst <- list.files(path=path, pattern="asc$",  full.names=T)
-preds <- stack(lst) 
-cl <- colorRampPalette(c('blue', 'orange', 'red', 'yellow'))(100)
-#T più alta nella parte centrale .......
+preds <- stack(lst) #stack() permette di unire più file come singolo 
 
-#come la specie si distribuisce in funzione della variabile abiotica elevation
+#imposto la palette di colori per i grafici
+cl <- colorRampPalette(c('blue', 'orange', 'red', 'yellow'))(100)
+
+#grafico di come la specie si distribuisce in funzione della variabile elevazione
 plot(preds%elevation, col=cl)
 points(species[species$Occurrence==1,], pch=16) 
-#sembra che la specie stia bene a basse quote
+#sembra che la specie si distribuisca preferibilmente a basse quote
 
-#come la specie si distribuisce in funzione della variabile abiotica temperature
+#grafico di come la specie si distribuisce in funzione della variabile temperatura
 plot(preds%temperature, col=cl)
 points(species[species$Occurrence==1,], pch=16) 
-#sembra che alla specie piacciano le T alte 
+#sembra che la specie si distribuisca preferibilmente in aree con T alte 
 
-#come la specie si distribuisce in funzione della variabile abiotica precipitation
+#grafico di come la specie si distribuisce in funzione della variabile  precipitazione
 plot(preds%precipitation, col=cl)
 points(species[species$Occurrence==1,], pch=16) 
 #sembra che ci sia una situazione intermedia per la precipitazione 
 
-#come la specie si distribuisce in funzione della variabile vegetation
+#come la specie si distribuisce in funzione della variabile vegetazione
 plot(preds%vegetation, col=cl)
 points(species[species$Occurrence==1,], pch=16) 
-#sembra che alla specie piaccia la situazione ombreggiata 
+#sembra che la specie si distribuisca preferibilmente in aree ombreggiate
 
 #GLM che unisce tutte le variabili ambientali in modeo da avere la probabilità distributiva della specie 
-d <- sdmData(train=species, predictors=preds) #unisce i dati a cui si è interessati per l'analisi
-m1 <- sdm(Occurrence = elevation + precipitation + temperature + vegetation, data=d, methods="glm") #formula GLM
-p1 <- predict(m1, newdata=preds) #mappa previsionale della distribuzione di specie in funzione dei predittori ambientali 
+d <- sdmData(train=species, predictors=preds) #sdmData() permette di unire le variabili dipendenti con quelle indipendenti 
+#ossia in questo caso il file relativo alla specie con quello relativo alle condizioni ambientali
+m1 <- sdm(Occurrence = elevation + precipitation + temperature + vegetation, data=d, methods="glm") #formulazione del modello lineare generalizzato
+p1 <- predict(m1, newdata=preds) #predict() produce una mappa previsionale
+#in questo caso della distribuzione di specie in funzione dei predittori ambientali 
 
 #grafico della mappa previsionale 
 plot(p1, col=cl)
