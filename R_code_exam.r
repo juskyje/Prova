@@ -879,7 +879,7 @@ ggplot(output, aes(x=time, y=npatches, color="red")) + geom_bar(stat="identity",
 
 ### R code crop
 
-#importare i pacchetti
+#importo i pacchetti
 library(raster)
 library(ncdf4) 
 
@@ -891,52 +891,59 @@ rlist <- list.files(pattern="snow")
 list_rast=lapply(rlist, raster) 
 snow.multitemp <- stack(list_rast)  
 
-
-
-
-
-
-
-
-
-
-
-#grafico 
+#visualizzo il set di immagini della serie multitemporale 
 clb <- colorRampPalette(c('dark blue', 'blue', 'light blue'))(100)
 plot(snow.multitemp, col=clb)
-plot(snow.multitemp$snow2010r, col=clb) #grafico di un'unica immagine entro la serie multitemporale 
+ 
+#definisco una certa estensione per le immagini della serie multitemporale 
+extension <- c(6, 20, 35, 50) #i numeri tra parentesi si riferiscono, in ordine, a: xmin e xmax
 
-#definire una certa estensione per un'immagine 
-extension <- c(6, 20, 35, 50) #dove i numeri tra parentesi si riferiscono, in ordine, a: xmin; xmax
+#effettuo lo zoom a livello della penisola italiana sull'immagine relativa al 2010 secondo l'estensione specificata
+zoom(snow.multitemp$snow2010r, ext=extension) #zoom() effettua lo zoom su un'area di una data immagine scelta secondo una certa estensione
 
-#effettuare lo zoom sull'immagine scelta secondo l'estensione specificata, in questo caso a livello della penisola italiana
-zoom(snow.multitemp$snow2010r, ext=extension)
-
-#effettuare direttamente lo zoom definendo un rettangolo nell'immagine originale
-plot(snow.multitemp$snow2010r, col=clb) #immagine originale
+#effettuo manualmente lo zoom a livello della penisola italiana sull'immagine relativa al 2010
+plot(snow.multitemp$snow2010r, col=clb) 
 zoom(snow.multitemp$snow2010r, ext=drawExtent())
+#in questo caso lo zoom viene effetuato definendo un rettangolo nell'immagine scelta originale
 
-#funzione crop invece che zoom, pur mantenendo la stessa estensione definita in precedenza 
-snow2010r.italy <- crop(snow.multitemp$snow2010r, extension) #la funzione crop quindi non è semplicemente uno zoom dell'immagine originale ma bensì una vera e propria nuova immagine
+#ritaglio l'immagine relativa al 2010 a livello della penisola italiana 
+snow2010r.italy <- crop(snow.multitemp$snow2010r, extension) #crop() crea una nuova immagine in funzione del ritaglio di un'altra scelto secondo una certa estensione 
 
-#grafico dell'immagine snow2010r così ritagliata
+#visualizzo l'immagine relativa al 2010 così ritagliata
 plot(snow2010r.italy, col=clb)
 
-#funzione crop per l'intera seria multitemporale
+#primo esercizio: ritaglio l'intero set multitemporale a livello della penisola italiana
 extension <- c(6, 20, 35, 50)
 snow.italy <- crop(snow.multitemp, extension)
 
-#grafico di tutte le immagini così ritagliate
-plot(snow.italy, col=clb, zlim=c(20,200)) #zlim serve per regolare le legende delle immagini in modo che riportino tutte lo stesso range di valori, da minimo a massimo
+#visualizzo tutte le immagini della serie multitemporale così ritagliate
+plot(snow.italy, col=clb, zlim=c(20,200)) #l'argomento zlim permette di regolare le legende delle immagini 
+#in modo che riportino tutte lo stesso range di valori, da minimo a massimo
 
+#boxplot di tutte le immagini della serie multitemporale così ritagliate
 boxplot(snow.italy, horizontal=T, outline=F) #dove outline si riferisce ai valori outliers, se F li esclude 
 
-##########################################################
+################################################################
 
 ### R species modeling distribution 
 
-#installare pacchetto
+#installo i pacchetti
 install.packages("sdm")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #caricare pacchetti
 library(sdm)
