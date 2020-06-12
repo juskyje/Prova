@@ -1001,35 +1001,12 @@ p1 <- predict(m1, newdata=preds) #mappa previsionale della distribuzione di spec
 plot(p1, col=cl)
 points(species[species$Occurrence==1,], pch=16)
 
+################################################################
 
- 
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#scarica dati da:
 https://land.copernicus.vgt.vito.be/PDF/portal/Application.html#Home
 
+################################################################
 
+### R Exam
 
