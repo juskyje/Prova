@@ -554,6 +554,7 @@ plot(p224r63_2011c2$map, col=clclass2)
 ###########################################################
 
 ### R code multitemp
+
 #installo i pacchetti
 install.packages("gridExtra")
 
@@ -751,56 +752,72 @@ boxplot(EN,horizontal=T, axes=T, outline=F) #boxplot() produce un grafico a scat
 
 ### R code snow
 
-#impostare la directory
-setwd("/Users/jen/Desktop/lab")
-
-#installare pacchetti
+#installo i pacchetti
 install.packages("ncdf4")
 
-#caricare pacchetti
+#carico i pacchetti
 library(raster)
-library(sp)
 library(ncdf4)
+library(rgdal)
 
-#importare le immagini
+#imposto la directory
+setwd("/Users/jen/Desktop/lab")
+
+##carico l'immagine della copertura nevosa
 snowmay <- raster("c_gls_SCE500_202005180000_CEURO_MODIS_V1.0.1.nc")
 
-#grafico delle immagini sulla copertura in neve
+#visualizzo l'immagine della copertura nevosa
 cl <- colorRampPalette(c('darkblue', 'blue', 'light blue'))(100)
 plot(snowmay, col=cl)
 
-########### Nuova importazione ###########
-#impostare la directory
+#impostare una nuova directory
 setwd("/Users/jen/Desktop/lab/snow")
 
-#importare un nuovo set di dati
-rlist <- list.files(pattern=".tif")
+#carico un nuovo set di immagini multitemporali
+rlist <- list.files(pattern="snow")
 list_rast=lapply(rlist, raster)
 snow.multitemp <- stack(list_rast)
 
-#grafico dei dati importati
+#visualizzo il set di immagini multitemporali
 plot(snow.multitemp, col=cl)
 
-#confrontare situazioni temporali
+#multiframe del confronto tra la copertura nevosa nel 2000 e la copertura nevosa nel 2020
 par(mfrow=c(1,2))
 plot(snow.multitemp$snow2000r, col=cl, zlim=c(0,250))
 plot(snow.multitemp$snow2020r, col=cl, zlim=c(0,250))
 dev.off()
 
-#grafico della differenza tra le due situazioni temporali
+#multiframe della differenza tra la copertura nevosa nel 2000 e la copertura nevosa nel 2020
 difsnow=snow.multitemp$snow2020r - snow.multitemp$snow2000r
 cldiff <- colorRampPalette(c('blue', 'white', 'red'))(100)
-#rosso=differenza più alta; blu=differenza più bassa
 plot(difsnow, col=cldiff)
+#rosso=differenza più grande; blu=differenza minore
 
-#modello previsionale (scenario) per stimare il valore per il 2025
-source("prediction.r") #source serve per caricare un codice già pronto dall'esterno 
-#interrompere il comando
-^C
+#calcolo il modello previsionale per stimare il valore della copertura nevosa nel 2025
+source("prediction.r") #source() permette di caricare un codice già pronto dall'esterno 
+^C #^C termina il comando
 
-#visualizzare la mappa della previsione (in questo caso abbiamo interrotto il comando e importiamo un nuovo raster già pronto)
+#visualizzo l'immagine relativa al modello previsionale (in questo caso importo il raster già pronto)
 predicted.snow.2025.norm <- raster("predicted.snow.2025.norm.tif")
 plot(predicted.snow.2025.norm, col=cl)
+
+################################################################
+
+### R code patches
+
+#installo i pacchetti
+install.packages("igraph")
+
+#carico i pacchetti
+library(raster)
+library(igraph)
+library(ggplot2)
+
+#imposto la directory
+setwd("/Users/jen/Desktop/lab")
+
+
+
 
 #######################################################
 
