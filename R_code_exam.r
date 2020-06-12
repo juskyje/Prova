@@ -846,7 +846,7 @@ plot(d2c)
 dev.off()
 
 #suddivido le immagini in patches
-d1c.for.patches <- clump(d1c.for) #clump() rileva patch di ..
+d1c.for.patches <- clump(d1c.for) #clump() suddivide in patches le celle più simili tra loro
 d2c.for.patches <- clump(d2c.for) 
 
 #esporto le immagini così suddivise in patches
@@ -861,7 +861,7 @@ plot(d2c.for.patches, col=clp)
 dev.off()
 
 #definisco quante patch son state create
-cellStats(d1c.for.patches, max) #cellStats() ...computa le statistiche per le celle di ciascun livello di un oggetto in formato raster
+cellStats(d1c.for.patches, max) #cellStats() computa le statistiche per le celle di ciascun livello di un oggetto in formato raster
 #il valore massimo delle patches per d1c coincide con 301
 cellStats(d2c.for.patches, max)
 #il valore massimo delle patches per d2c coincide con 1212
