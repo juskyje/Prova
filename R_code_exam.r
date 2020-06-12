@@ -733,10 +733,8 @@ setwd("/Users/jen/Desktop/lab/esa_no2")
 
 ##carico tutte le immagini "EN" in una volta 
 rlist <- list.files(pattern=".png", full.names=T) #list.files() crea una lista di immagini
-
 listafinale <- lapply(rlist, raster) #lapply() applica una data funzione ad una lista di file 
 #in questo caso la funzione è raster 
-
 EN <- stack(listafinale) #stack() unisce tutti file come unico dataset
 
 #visualizzo tutte le immagini "EN" in una volta 
@@ -770,10 +768,10 @@ snowmay <- raster("c_gls_SCE500_202005180000_CEURO_MODIS_V1.0.1.nc")
 cl <- colorRampPalette(c('darkblue', 'blue', 'light blue'))(100)
 plot(snowmay, col=cl)
 
-#impostare una nuova directory
+#imposto una nuova directory
 setwd("/Users/jen/Desktop/lab/snow")
 
-#carico un nuovo set di immagini multitemporali
+##carico un nuovo set di immagini multitemporali
 rlist <- list.files(pattern="snow")
 list_rast=lapply(rlist, raster)
 snow.multitemp <- stack(list_rast)
@@ -816,105 +814,92 @@ library(ggplot2)
 #imposto la directory
 setwd("/Users/jen/Desktop/lab")
 
-
-
-
-#######################################################
-
-### R code patches
-
-#impostare la directory
-setwd("/Users/jen/Desktop/lab")
-
-#installare libreria
-install.packages("igraph")
-
-#caricare librerie
-library(sp)
-library(raster)
-library(igraph)
-library(ggplot2)
-
-#caricare le immagini
+##carico le immagini d1c e d2c
 d1c <- raster("d1c.tif")
 d2c <- raster("d2c.tif")
 
-#grafico di comparazione tra le due situazioni temporali
+#multiframe del confronto tra d1c e d2c
 cl <- colorRampPalette(c('black', 'green'))(100)
 par(mfrow=c(1,2))
 plot(d1c, col=cl)
-plot(d2c, col=cl) #la foresta è la classe numero due mentre la zona coltivata è la classe numero uno
+plot(d2c, col=cl) 
+#la foresta è associata alla classe numero due mentre la zona coltivata alla classe numero uno
 dev.off()
 
-#estrarre solamente la zona forestata per la prima immagine
+#estraggo solamente la zona forestata per d1c
 d1c.for <- reclassify(d1c, cbind(1, NA))  
 
-#grafico di comparazione tra la situazione con solo la zona forestata e quella con entrambe le zone 
+#multiframe del confronto tra d1c con solo la zona forestata e d1c con entrambe le zone 
 cl <- colorRampPalette(c('black', 'green'))(100)
 par(mfrow=c(1,2))
 plot(d1c.for, col=cl)
 plot(d1c, col=cl) 
 dev.off()
 
-#estrarre solamente la zona forestata per la seconda immagine
+#estraggo solamente la zona forestata per d2c
 d2c.for <- reclassify(d2c, cbind(1, NA))
 
-#grafico di comparazione tra le due situazioni temporali con solo la zona forestata  
+#multiframe di confronto tra d1c e d2c entrambe con solo la zona forestata  
 par(mfrow=c(1,2))
 plot(d1c)
 plot(d2c)
 dev.off()
 
-#creare patch
-d1c.for.patches <- clump(d1c.for) 
+#suddivido le immagini in patches
+d1c.for.patches <- clump(d1c.for) #clump() rileva patch di ..
 d2c.for.patches <- clump(d2c.for) 
 
-#salvare i dati verso l'esterno (esportarli)
-writeRaster(d1c.for.patches, "d1c.for.patches.tif")
+#esporto le immagini così suddivise in patches
+writeRaster(d1c.for.patches, "d1c.for.patches.tif") #writeRaster() esporta file creati all'interno dell'ambiente R in formato raster
 writeRaster(d2c.for.patches, "d2c.for.patches.tif")
 
-#importare immagini con la funzione raster
-d1c.for.patches <- raster("d1c.for.patches.tif")
-d2c.for.patches <- raster("d2c.for.patches.tif")
-
-#grafico delle due immagini di patch
+#multiframe di confronto tra d1c e d2c suddivise in patches 
 clp <- colorRampPalette(c('dark blue', 'blue','green','orange','yellow','red'))(100)
 par(mfrow=c(1,2))
 plot(d1c.for.patches, col=clp)
 plot(d2c.for.patches, col=clp)
 dev.off()
 
-#definire quantitatviamente quante patch son state create
-cellStats(d1c.for.patches, max) 
+#definisco quante patch son state create
+cellStats(d1c.for.patches, max) #cellStats() ...computa le statistiche per le celle di ciascun livello di un oggetto in formato raster
+#il valore massimo delle patches per d1c coincide con 301
 cellStats(d2c.for.patches, max)
+#il valore massimo delle patches per d2c coincide con 1212
 
-#creare dataframe definito dal numero massimo di patch in relazione alle due diverse immagini
-time <- c("Before deforestation","After deforestation")
-npatches <- c(301,1212)
+#creo un dataframe definito dal numero massimo di patch in relazione alle due diverse immagini d1c e d2c
+time <- c("Before deforestation","After deforestation") 
+npatches <- c(301,1212) 
 output <- data.frame(time,npatches)
 attach(output)
 
 #grafico della variazione del numero di patch nel tempo
 ggplot(output, aes(x=time, y=npatches, color="red")) + geom_bar(stat="identity", fill="white")
 
-##########################################################
+################################################################
 
 ### R code crop
 
-#impostare la directory
-setwd("/Users/jen/Desktop/snow") 
-
-#installare pacchetto
-install.packages("ncdf4")
-
 #importare i pacchetti
 library(raster)
-library(ncdf4) #questa libreria serve per poter caricare dati in formato come lo trovi sul sito copernicus
+library(ncdf4) 
 
-#importare un nuovo set di dati
-rlist <- list.files(pattern="snow") #creare una lista di file
-list_rast=lapply(rlist, raster) #applicare la funzione raster sulla lista di file
-snow.multitemp <- stack(list_rast) #per accorparli tutti in un unico file, così definendo una serie multitemporale 
+#imposto la directory
+setwd("/Users/jen/Desktop/snow") 
+
+##carico un set di immagini multitemporali
+rlist <- list.files(pattern="snow") 
+list_rast=lapply(rlist, raster) 
+snow.multitemp <- stack(list_rast)  
+
+
+
+
+
+
+
+
+
+
 
 #grafico 
 clb <- colorRampPalette(c('dark blue', 'blue', 'light blue'))(100)
