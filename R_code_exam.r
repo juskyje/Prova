@@ -2,6 +2,7 @@
 
 #installo il pacchetto
 install.packages("sp") #install.packages() installa i pacchetti esterni dalle repositories
+#"sp" è un pacchetto per l'analisi e per le funzioni associate ai dati di tipo spaziale
 
 #carico il pacchetto
 library(sp) #library() importa i pacchetti esterni dapprima installati
@@ -91,6 +92,7 @@ plot(cadmium, copper, pch=17, xlab="cadmio", ylab="rame", cex.lab=2) #l'argoment
 
 #installo i pacchetti 
 install.packages("GGally")
+#"GGally" è un'estensione del pacchetto "ggplot2" per cui ne semplifica le funzioni
 
 #carico i pacchetto
 library(sp)
@@ -165,8 +167,12 @@ plot(foram, carbon, col="cornflowerblue", cex=2, pch=19)
 
 #installo i pacchetti
 install.packages("ggplot2")
+#"ggplot2" è un pacchetto atto alla creazione di grafici
 install.packages("spatstat")
+#"spatspat" è un pacchetto atto principalmente all'analisi dei modelli puntuali a due o tre dimensioni ma che include anche 
+#molte altre funzioni comunque legate a dinamiche e modelli spaziali
 install.packages("rgdal")
+#"rgdal" è un pacchetto che implementa le funzioni del pacchetto "sp" e permette inoltre di lavorare su file raster e vettoriali
 
 #carico i pacchetti 
 library(ggplot2)
@@ -219,7 +225,7 @@ points(covids) #points() aggiunge i punti sopra la mappa di densità
 cl <- colorRampPalette(c('yellow', 'orange', 'red')) (100) #colorRampPalette() permette di cambiare la palette di colori scelti per il grafico, dove il valore riportato dall'ultima parentesi si riferisce al numero delle gradazioni di colori
 plot(d, col=cl)
 
-#primo esercizio: mappa di densità con i punti e con palette di colori dal verde al blu
+#primo esercizio: mappa di densità con palette di colori dal verde al blu
 cl2 <- colorRampPalette(c('darkgreen', 'lightgreen', 'blue')) (100) 
 plot(d, col=cl2)
 
@@ -228,8 +234,8 @@ coastlines <- readOGR("ne_10m_coastline.shp") #readOGR() permette di caricare da
 
 #aggiungo le coste al grafico precedente
 plot(coastlines, add=T) 
-#questa mappa rappresenta quanto densi sono i punti nel mondo e si nota che
-#la densità massima registrata in Febbraio è localizzata in Europa
+#questa mappa rappresenta quanto densi sono i punti nel mondo 
+#e si nota che la densità massima registrata in Febbraio è localizzata in Europa
 
 #secondo esercizio: mappa di densità con i punti, le coste, e con nuova palette di colori 
 cl3 <- colorRampPalette(c('darkcyan', 'purple', 'red')) (200) 
@@ -246,6 +252,7 @@ marks(covids) <-covid$cases #marks() permette di associare un dataset a point pa
 
 #effettuo l'interpolazione dei valori
 s <- Smooth(covids) #Smooth() performa lo smoothing del dataset a point pattern
+#ossia permette di stimare i valori nelle zone dove non è stato effettuato il campionamento
 
 #mappa di interpolazione
 plot(s)
@@ -327,6 +334,7 @@ dev.off()
 
 #installo i pacchetti
 install.packages("raster")
+#"raster" è un pacchetto che consente la lettura, l'analisi e la manipolazione di dati spaziali come raster e vettori
 
 #carico i pacchetti
 library(raster)
@@ -518,6 +526,7 @@ plot(difdvilr50, col=cldifdvi)
 
 #installo il pacchetto
 install.packages("RStoolbox")
+#"RStoolbox" consente l'analisi delle immagini da sensore remoto 
 
 #carico i pacchetti
 library(raster)
@@ -530,10 +539,10 @@ setwd("/Users/jen/Desktop/lab")
 p224r63_2011 <- brick("p224r63_2011_masked.grd")
 
 #visualizzo l'immagine RGB del 2011 (dove le bande del landsat sono:1=blu, 2=verde, 3=rosso, 4=nir)
-plotRGB(p224r63_2011, r=4, g=2, b=2, stretch="Lin") 
+plotRGB(p224r63_2011, r=4, g=3, b=2, stretch="Lin") 
 
 #classifico l'immagine del 2011 tramite algoritmo non supervisionato
-p224r63_2011c <- unsuperClass(p224r63_2011, nClasses=4) #unsuperClass() ragguppa i dati di un raster in classi in maniera non supervinata ossia in una maniera che non conferisce i training set al computer per la distinzione
+p224r63_2011c <- unsuperClass(p224r63_2011, nClasses=4) #unsuperClass() ragguppa i dati di un raster in classi in maniera non supervisionata ossia in una maniera che non conferisce i training set al computer per la distinzione
 #cioè in questo caso non indica cosa è foresta e cosa non è foresta
 
 #visualizzo l'immagine del 2011 definita dall'algoritmo 
@@ -557,6 +566,7 @@ plot(p224r63_2011c2$map, col=clclass2)
 
 #installo i pacchetti
 install.packages("gridExtra")
+#"gridExtra" abilita delle funzioni che consentono di gestire spazialmente i grafici 
 
 #carico i pacchetti
 library(raster)
@@ -752,6 +762,7 @@ boxplot(EN,horizontal=T, axes=T, outline=F) #boxplot() produce un grafico a scat
 
 #installo i pacchetti
 install.packages("ncdf4")
+#"ncdf4" consente di importare e aprire files del formato netCDF  
 
 #carico i pacchetti
 library(raster)
@@ -805,6 +816,7 @@ plot(predicted.snow.2025.norm, col=cl)
 
 #installo i pacchetti
 install.packages("igraph")
+#"igraph" consente di operare nell'ambito nella network analysis 
 
 #carico i pacchetti
 library(raster)
@@ -846,7 +858,7 @@ plot(d2c)
 dev.off()
 
 #suddivido le immagini in patches
-d1c.for.patches <- clump(d1c.for) #clump() suddivide in patches le celle più simili tra loro
+d1c.for.patches <- clump(d1c.for) #clump() suddivide le immagini in patches raggruppando i pixels secondo il patch di appartenenza
 d2c.for.patches <- clump(d2c.for) 
 
 #esporto le immagini così suddivise in patches
@@ -929,6 +941,7 @@ boxplot(snow.italy, horizontal=T, outline=F) #dove outline si riferisce ai valor
 
 #installo i pacchetti
 install.packages("sdm")
+#"sdm" consente di sviluppare modelli per la distribuzione delle specie 
 
 #carico i pacchetti
 library(sdm)
