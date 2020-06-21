@@ -1094,7 +1094,7 @@ grafico21 <- ggplot(output1, aes(x=year.med, y=max.med, color=year.med)) +
 geom_bar(stat="identity", fill=c("darkgoldenrod1", "darkorange")) + ylim(0, 350)
 
 grid.arrange(grafico11, grafico21, nrow=1)
-#i valori minimi risultano essere aumentati di pochissimo, mentre i valori massimi risultano essere significativamente accresciuti
+#i valori minimi risultano essere diminuiti, mentre i valori massimi risultano essere accresciuti
 
 #creo un dataframe per il confronto dei valori minimi e massimi di LST massima tra il 2017 e il 2020
 year.max <- c("2017", "2020")
@@ -1109,8 +1109,8 @@ grafico22 <- ggplot(output2, aes(x=year.max, y=max.max, color=year.max)) +
   geom_bar(stat="identity", fill=c("brown1", "brown4")) + ylim(0, 350)
 
 grid.arrange(grafico12, grafico22, nrow=1)
-#stesso trend riferibile ai valori della variabile mediana, 
-#per cui in generale sembra esserci un aumento di circa 3 unità a livello di valori massimi
+#stesso trend riferibile ai valori della variabile mediana 
+#per cui in generale sembra esserci un aumento di circa 3 unità a livello di valori massimi e di circa 1 a livello di valori minimi
 
 #computo la differenza tra la LST media nel 2020 e la LST media nel 2017
 diflst.median = surface.temp.median$LST.Median.1 - surface.temp.median$LST.Median.4
