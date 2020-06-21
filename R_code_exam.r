@@ -1162,6 +1162,7 @@ extension <- c(41, 52, -26, -10)
 s.t.median.madagascar <- crop(surface.temp.median, extension)
  #visualizzo le immagini LST così ritagliate 
 plot(s.t.median.madagascar, col=cl1)
+#si nota una variazione nei valori che interessa maggiormente la punta nord, la zona sud, e il centro nord
 
 #ritaglio le immagini NDVI a livello del Madagascar
 ndvi.madagascar <- crop(ndvi, extension)
@@ -1169,6 +1170,7 @@ ndvi.madagascar <- crop(ndvi, extension)
 cl2 <- colorRampPalette(c('darkgoldenrod3', 'brown', 'darkseagreen4', 'darkgreen', 'white')) (100)
  #visualizzo le immagini NDVI così ritagliate 
 plot(ndvi.madagascar, col=cl2, main=c("NDVI.1", "NDVI.2", "NDVI.3", "NDVI.4"))
+#si nota una variazione nei valori che interessa per lo più la costa est, il centro e il centro-sud 
 
 #visualizzo l'immagine multiframe relativa alla comparazione tra i valori di NDVI e LST media riferiti al Madagascar e agli anni 2017 e 2020
 par(mfrow=c(2,2)) 
@@ -1177,6 +1179,10 @@ plot(ndvi.madagascar$Normalized.Difference.Vegetation.Index.333M.1, main= "NDVI.
 plot(s.t.median.madagascar$LST.Median.4, main="LST.2020", col=cl1)
 plot(ndvi.madagascar$Normalized.Difference.Vegetation.Index.333M.4, main= "NDVI.2020", col=cl2)
 dev.off()
+#Sapendo che i valori di LST e NDVI son in genere tra loro inversamente proporzionali e dal momento che valori elevati di NDVI (da 0,6 a 0,9) suggeriscono un'alta densità di vegetazione 
+#mentre bassi valori (da 0 a 0,3) suggeriscono la presenza di terreno nudo o superfici artificiali, mi aspettavo che alle zone più verdi (come identificate da un alto NDVI)
+#corrispondessero valori più bassi di LST e viceversa. Questa relazione è visivamente riscontrata solo a livello della costa est e parte del centro, 
+#mentre per altre zone si riscontrerebbe addirittura il trend opposto, come ben visibile per la zona nord-ovest.
 
 #####################################################################################################
 
