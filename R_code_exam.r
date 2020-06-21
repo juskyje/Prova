@@ -1010,124 +1010,144 @@ https://land.copernicus.vgt.vito.be/PDF/portal/Application.html#Home
 
 ################################################################
 
-### R Exam
+### R_code_Exam
+
 #carico i pacchetti
 library(sp)
 library(ncdf4)
 library(raster)
 library(rgdal)
+library(RStoolbox)
 library(ggplot2)
 library(gridExtra)
 
 #stabilisco la cartella di lavoro
 setwd("/Users/jen/Desktop/Esame/LST")
 
-#carico i dati
+#carico i dati relativi a LST
 lst_list <- list.files(pattern="LST_", full.names=T) #creo una lista di dati da importare
 nc <- nc_open(lst_list) #nc_open() permette di aprire il contenuto e le informazioni relative ai file ntCDF 
 names(nc[['var']]) #visualizzo le variabili dei dati caricati
-surface.temp.median <- stack(stack(lst_list,varname="MEDIAN")) #carico i dati relativi ai valori mediani della variabile LST 
-surface.temp.max <- stack(stack(lst_list,varname="MAX"))
+surface.temp.median <- stack(stack(lst_list,varname="MEDIAN")) #carico i dati relativi ai valori mediani (definiti in Kelvin) della variabile LST 
+surface.temp.max <- stack(stack(lst_list,varname="MAX")) #carico i dati relativi ai valori massimi (definiti in Kelvin) della variabile LST
+
+#carico i dati relativi a NDVI 
+list <- list.files(pattern="NDVI_", full.names=T) 
+ndvi_list <- lapply(list, raster)
+ndvi <- stack(ndvi_list)
 
 ###Primo obiettivo: analisi multitemporale della LST media e massima 
 
-#scelgo una palette di colori per i grafici
+#scelgo una palette di colori per visualizzare le immagini LST 
 colors() #colors() permette di visualizzare i nomi relativi ai colori disponibili all'uso
 cl1 <- colorRampPalette(c('darkslateblue', 'blue1', 'cyan', 'yellow', 'red')) (100)
+cld <- colorRampPalette(c('blue', 'white', 'red'))(100)
 
-#visualizzo l'immagine multiframe relativa ai dati relativi alla LST media 
-plot(surface.temp.median, col=cl1)
+#visualizzo l'immagine multiframe relativa ai dati sulla LST media 
+plot(surface.temp.median, col=cl1, zlim=c(250,330))
 #le immagini sono plottate in ordine cronologico, per cui 1=2017; 2=2018; 3=2019; 4=2020
+#i valori non sembrano essersi discostati di molto nel corso degli anni, fattasi eccezione per l’Europa e alcune porzioni del nord America
 
-#visualizzo l'immagine multiframe relativa ai dati relativi alla LST massima 
-plot(surface.temp.max, col=cl1)
-#le immagini sono plottate in ordine cronologico
+#visualizzo l'immagine multiframe relativa ai dati sulla LST massima 
+plot(surface.temp.max, col=cl1, zlim=c(250,360))
+#i valori mostrano una variabilità maggiore negli anni rispetto ai valori relativi alla LST media
+
+#boxplot del discostamento dei valori della LST media per ogni anno preso in considerazione
+par(mar=c(4,8,3,2)) #regolo la visualizzazione dei margini del grafico rispetto ai bordi della figura
+bmediana <- boxplot(surface.temp.median, horizontal=T, axes=T, outline=F, las=1)
+#i valori ricadono in media all’interno dell’intervallo 255-325, 
+#dove nell’anno 2018 si riscontra un restringimento del range dei valori mentre nell’anno 2019 se ne riscontra un allargamento
+bmediana$stats #questa funzione permette di visualizzare i valori delle statistiche associate al boxplot 
+#(e quindi i quartili, la mediana e i baffi)
+
+#boxplot del discostamento dei valori della LST massima per ogni anno preso in considerazione
+par(mar=c(4,8,3,2))
+bmassima <- boxplot(surface.temp.max, horizontal=T, axes=T, outline=F, las=1)
+#stesso trend riferibile alla LST media ma in questo caso i valori oscillano tra 275 e 345
+bmassima$stats
 
 #visualizzo l'immagine multiframe relativa alla comparazione tra la LST media nel 2017 e la LST media nel 2020
 par(mfrow=c(1,2)) 
-plot(surface.temp.median$LST.Median.1, col=cl1)
-plot(surface.temp.median$LST.Median.4, col=cl1)
+plot(surface.temp.median$LST.Median.1, col=cl1, zlim=c(250,330), main="LST.Median.2017")
+plot(surface.temp.median$LST.Median.4, col=cl1, zlim=c(250,330), main="LST.Median.2020")
 dev.off()
-
-#computo la differenza tra la LST media nel 2020 e la LST media nel 2017
-diflst.median = surface.temp.median$LST.Median.1 - surface.temp.median$LST.Median.4
-
-#visualizzo l'immagine relativa alla differenza tra la LST media nel 2020 e la LST media nel 2017
-plot(diflst.median, col=cl1)
+#si nota una variazione localizzata più che altro nell’emisfero boreale, 
+#per cui il Canada sembra essere interessato da un raffreddamento mentre l’Europa da un riscaldamento
 
 #visualizzo l'immagine multiframe relativa alla comparazione tra la LST massima nel 2017 e la LST massima nel 2020
 par(mfrow=c(1,2)) 
-plot(surface.temp.max$LST.Maximum.1, col=cl1)
-plot(surface.temp.max$LST.Maximum.4, col=cl1)
+plot(surface.temp.max$LST.Maximum.1, col=cl1, zlim=c(250,360), main="LST.Maximum.2017")
+plot(surface.temp.max$LST.Maximum.4, col=cl1, zlim=c(250,360), main="LST.Maximum.2020")
 dev.off()
+#il Canada sembra essere interessato da un abbassamento nella LST massima mentre l’Europa da un suo innalzamento
 
-#computo la differenza tra la LST massima nel 2020 e la LST massima nel 2017
-diflst.max = surface.temp.max$LST.Maximum.1 - surface.temp.max$LST.Maximum.4
-
-#visualizzo l'immagine relativa alla differenza tra la LST massima nel 2020 e la LST massima nel 2017
-plot(diflst, col=cl1)
-
-#boxplot del discostamento dei valori della LST media per ogni anno preso in considerazione
-bmediana <- boxplot(surface.temp.median, horizontal=T, axes=T, outline=F, las=1)
-bmediana$stats #questa funzione permette di visualizzare i valori delle statistiche associate al boxplot (e quindi i quartili, la mediana e i baffi)
-
-#creo un dataframe generale per il confronto dei valori minimi e massimi di LST media tra il 2017 e il 2020
-year1 <- c("2017", "2020")
-min1 <- c(259.1, 257.6)
-max1 <- c(319.22, 321.8)
-output1 <- data.frame(year1, min1, max1)
-
-#visualizzo il dataframe così generato 
-View(output1) 
-
-#multiframe tra i due grafici ggplot riferiti uno ai valori minimi di LST media confrontati tra i due anni estremi e l'altro riferito ai valori massimi di LST media confrontati tra gli stessi anni
-grafico11 <- ggplot(output1, aes(x=year1, y=min1, color=year1)) + 
+#creo un dataframe per il confronto dei valori minimi e massimi di LST media tra il 2017 e il 2020
+year.med <- c("2017", "2020")
+min.med <- c(259.1, 257.6)
+max.med <- c(319.22, 321.8)
+output1 <- data.frame(year.med, min.med, max.med)
+ #multiframe tra i due grafici ggplot riferiti uno ai valori minimi di LST media e l'altro ai suoi valori massimi 
+grafico11 <- ggplot(output1, aes(x=year.med, y=min.med, color=year.med)) + 
 geom_bar(stat="identity", fill=c("darkgoldenrod1", "darkorange")) + ylim(0, 350)
 
-grafico21 <- ggplot(output1, aes(x=year1, y=max1, color=year1)) +
+grafico21 <- ggplot(output1, aes(x=year.med, y=max.med, color=year.med)) +
 geom_bar(stat="identity", fill=c("darkgoldenrod1", "darkorange")) + ylim(0, 350)
 
 grid.arrange(grafico11, grafico21, nrow=1)
+#i valori minimi risultano essere aumentati di pochissimo, mentre i valori massimi risultano essere significativamente accresciuti
 
-#boxplot del discostamento dei valori della LST massima per ogni anno preso in considerazione
-bmassima <- boxplot(surface.temp.max, horizontal=T, axes=T, outline=F, las=1)
-bmassima$stats
-
-#creo un dataframe generale per il confronto dei valori minimi e massimi di LST massima tra il 2017 e il 2020
-year2 <- c("2017", "2020")
-min2 <- c(277.2, 276.5)
-max2 <- c(340.4, 343.8)
-output2 <- data.frame(year2, min2, max2)
-
-#visualizzo il dataframe così generato 
-View(output2) 
-
-#multiframe tra i due grafici ggplot riferiti uno ai valori minimi di LST massima confrontati tra i due anni estremi e l'altro riferito ai valori massimi di LST massima confrontati tra gli stessi anni
-grafico12 <- ggplot(output2, aes(x=year2, y=min2, color=year2)) + 
+#creo un dataframe per il confronto dei valori minimi e massimi di LST massima tra il 2017 e il 2020
+year.max <- c("2017", "2020")
+min.max <- c(277.2, 276.5)
+max.max <- c(340.4, 343.8)
+output2 <- data.frame(year.max, min.max, max.max)
+ #multiframe tra i due grafici ggplot riferiti uno ai valori minimi di LST massima e l'altro ai suoi valori massimi
+grafico12 <- ggplot(output2, aes(x=year.max, y=min.max, color=year.max)) + 
   geom_bar(stat="identity", fill=c("brown1", "brown4")) + ylim(0, 350)
 
-grafico22 <- ggplot(output2, aes(x=year2, y=max2, color=year2)) +
+grafico22 <- ggplot(output2, aes(x=year.max, y=max.max, color=year.max)) +
   geom_bar(stat="identity", fill=c("brown1", "brown4")) + ylim(0, 350)
 
 grid.arrange(grafico12, grafico22, nrow=1)
+#stesso trend riferibile ai valori della variabile mediana, 
+#per cui in generale sembra esserci un aumento di circa 3 unità a livello di valori massimi
 
-#predico i valori della LST media relativi al 2021
+#computo la differenza tra la LST media nel 2020 e la LST media nel 2017
+diflst.median = surface.temp.median$LST.Median.1 - surface.temp.median$LST.Median.4
+#visualizzo l'immagine relativa alla differenza 
+plot(diflst.median, col=cld, main="Median")
+#ogni continente (fattasi eccezione per l’unione europea e la Cina, che non mostrano variazioni allarmanti apprezzabili) 
+#è un mosaico di diverse zone: alcune hanno mantenuto gli stessi valori, altre hanno subito variazioni  minime e altre ancora hanno subito variazioni drastiche
+
+#computo la differenza tra la LST massima nel 2020 e la LST massima nel 2017
+diflst.max = surface.temp.max$LST.Maximum.1 - surface.temp.max$LST.Maximum.4
+#rosso=differenza più alta; blu=differenza più bassa, bianco=nessuna differenza
+#visualizzo l'immagine relativa alla differenza 
+plot(diflst.max, col=cld, main="Maximum")
+#solo poche zone mostrano forti variazioni 
+#e queste zone corrispondono a: Canada, Messico, parte del Brasile, Kenya-Etiopia, anatolia, India e parte della Russia. 
+
+#predico i valori della LST media relativi al 2021 
+ #costruisco una variabile temporale 
 time <- 1:nlayers(surface.temp.median)
+ #eseguo la regressione lineare
 fun <- function(x) {if (is.na(x[1])){ NA } else {lm(x ~ time)$coefficients[2] }} 
 predicted.surface.temp.median2021 <- calc(surface.temp.median, fun) 
-predicted.surface.temp.median2021.norm <- predicted.surface.temp.median2021.norm*255/53.90828
-
-#visualizzo l'immagine relativa al modello previsionale 
-plot(predicted.surface.temp.median2021.norm, col=cl1)
+predicted.surface.temp.median2021.norm <- predicted.surface.temp.median2021*255/53.90828
+ #visualizzo l'immagine relativa al modello previsionale 
+plot(predicted.surface.temp.median2021.norm, main="Median", col=cl1)
+#previsione catastrofica non attendibile
 
 #predico i valori della LST massima relativi al 2021
+ #costruisco una variabile temporale 
 time <- 1:nlayers(surface.temp.max)
+ #eseguo la regressione lineare
 fun <- function(x) {if (is.na(x[1])){ NA } else {lm(x ~ time)$coefficients[2] }} 
 predicted.surface.temp.max2021 <- calc(surface.temp.max, fun) 
-predicted.surface.temp.max2021.norm <- predicted.surface.temp.max2021.norm*255/53.90828
-
-#visualizzo l'immagine relativa al modello previsionale 
-plot(predicted.surface.temp.max2021.norm, col=cl1)
+predicted.surface.temp.max2021.norm <- predicted.surface.temp.max2021*255/53.90828
+ #visualizzo l'immagine relativa al modello previsionale 
+plot(predicted.surface.temp.max2021.norm, main="Maximum", col=cl1)
+#previsione catastrofica non attendibile
 
 ###Secondo obiettivo: confronto tra i valori di NDVI e LST media a livello del territorio malgascio 
 
@@ -1138,25 +1158,19 @@ d <- zoom(surface.temp.median$LST.Median.1, ext=drawExtent())
 #definisco l'estensione relativa alla posizione del Madagascar nella mappa 
 extension <- c(41, 52, -26, -10)
 
-#ritaglio a livello del Madagascar 
+#ritaglio  le immagini LST a livello del Madagascar 
 s.t.median.madagascar <- crop(surface.temp.median, extension)
-
-#visualizzo le immagini così ritagliate 
+ #visualizzo le immagini LST così ritagliate 
 plot(s.t.median.madagascar, col=cl1)
 
-##importo dati su NDVI 
-ndvi_list <- list.files(pattern="NDVI_", full.names=T) 
-nc2 <- nc_open(ndvi_list) 
-names(nc2[['var']]) 
-ndvi <- stack(stack(ndvi_list,varname="NDVI"))
-
-#ritaglio a livello del Madagascar
+#ritaglio le immagini NDVI a livello del Madagascar
 ndvi.madagascar <- crop(ndvi, extension)
-
-#configuro la palette di colori per le immagini NDVI
+ #configuro la palette di colori per le immagini NDVI
 cl2 <- colorRampPalette(c('darkgoldenrod3', 'brown', 'darkseagreen4', 'darkgreen', 'white')) (100)
+ #visualizzo le immagini NDVI così ritagliate 
+plot(ndvi.madagascar, col=cl2, main=c("NDVI.1", "NDVI.2", "NDVI.3", "NDVI.4"))
 
-#visualizzo l'immagine multiframe relativa alla comparazione tra i valori di NDVI e LST media riferiti al Madagascar e agli anni estremi 2017 e 2020
+#visualizzo l'immagine multiframe relativa alla comparazione tra i valori di NDVI e LST media riferiti al Madagascar e agli anni 2017 e 2020
 par(mfrow=c(2,2)) 
 plot(s.t.median.madagascar$LST.Median.1, main="LST.2017", col=cl1)
 plot(ndvi.madagascar$Normalized.Difference.Vegetation.Index.333M.1, main= "NDVI.2017", col=cl2)
@@ -1164,12 +1178,7 @@ plot(s.t.median.madagascar$LST.Median.4, main="LST.2020", col=cl1)
 plot(ndvi.madagascar$Normalized.Difference.Vegetation.Index.333M.4, main= "NDVI.2020", col=cl2)
 dev.off()
 
-
-
-
-
-
-
+#####################################################################################################
 
 
 
